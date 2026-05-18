@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trekking Packages</title>
+</head>
+<body>
+
+<h1>Available Trekking Packages</h1>
+
+<form method="GET">
+    <input type="text" name="q" placeholder="Search tours...">
+    <button type="submit">Search</button>
+</form>
+
+<hr>
+
+{% for package in packages %}
+
+    <div>
+        <img src="{{ package.image.url }}" width="300">
+
+        <h2>
+            <a href="{{ package.get_absolute_url }}">
+                {{ package.title }}
+            </a>
+        </h2>
+
+        <p>
+            Destination: {{ package.destination }}
+        </p>
+
+        <p>
+            Duration: {{ package.duration }} days
+        </p>
+
+        <p>
+            Difficulty: {{ package.difficulty }}
+        </p>
+
+        <p>
+            Price: ${{ package.price }}
+        </p>
+
+        <hr>
+    </div>
+
+    {% empty %}
+
+    <p>No packages found.</p>
+
+{% endfor %}
+
+</body>
+</html>
