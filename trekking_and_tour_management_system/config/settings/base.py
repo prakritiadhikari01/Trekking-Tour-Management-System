@@ -80,6 +80,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 # APPS
 # ------------------------------------------------------------------------------
 DJANGO_APPS = [
+    "jazzmin",  
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -102,10 +103,16 @@ THIRD_PARTY_APPS = [
     "rest_framework.authtoken",
     "corsheaders",
     "drf_spectacular",
+    
 ]
 
 LOCAL_APPS = [
     "trekking_and_tour_management_system.users",
+    "trekking_and_tour_management_system.bookings",
+    "trekking_and_tour_management_system.payments",
+    "trekking_and_tour_management_system.reviews",
+    "trekking_and_tour_management_system.packages",
+
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -371,3 +378,8 @@ SPECTACULAR_SETTINGS = {
 }
 # Your stuff...
 # ------------------------------------------------------------------------------
+JAZZMIN_SETTINGS = {
+    "site_title": "Trekking Admin",
+    "site_header": "Trekking & Tour System",
+    "site_brand": "Tour Manager",
+}
