@@ -17,16 +17,34 @@ class User(AbstractUser):
     check forms.SignupForm and forms.SocialSignupForms accordingly.
     """
 
+    ROLE_CHOICES = (
+        ("customer", "Customer"),
+        ("guide", "Guide"),
+        ("admin", "Admin"),
+    ) 
+
     # First and last name do not cover name patterns around the globe
     name = CharField(_("Name of User"), blank=True, max_length=255)
+
+    role = CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default="customer",
+    )
+    
     first_name = None  # type: ignore[assignment]
     last_name = None  # type: ignore[assignment]
     email = EmailField(_("email address"), unique=True)
     username = None  # type: ignore[assignment]
 
+    
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
+    
+
+    
     objects: ClassVar[UserManager] = UserManager()
 
     def get_absolute_url(self) -> str:
