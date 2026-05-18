@@ -106,6 +106,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "trekking_and_tour_management_system.users",
+    "trekking_and_tour_management_system.packages",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -187,6 +188,7 @@ STATICFILES_FINDERS = [
 MEDIA_ROOT = str(APPS_DIR / "media")
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = "/media/"
+
 
 # TEMPLATES
 # ------------------------------------------------------------------------------

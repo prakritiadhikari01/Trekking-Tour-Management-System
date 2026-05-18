@@ -23,7 +23,9 @@ urlpatterns = [
     path("users/", include("trekking_and_tour_management_system.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
-    # ...
+    
+     path("admin/", admin.site.urls),
+    path("packages/", include("trekking_and_tour_management_system.packages.urls")),
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
 ]
