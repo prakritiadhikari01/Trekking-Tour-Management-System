@@ -16,15 +16,25 @@ class User(AbstractUser):
     If adding fields that need to be filled at user signup,
     check forms.SignupForm and forms.SocialSignupForms accordingly.
     """
+    @property
+    def is_customer(self):
+        return self.role == "customer"
+
+    @property
+    def is_guide(self):
+        return self.role == "guide"
+
+    @property
+    def is_admin_role(self):
+        return self.role == "admin"
 
     ROLE_CHOICES = (
         ("customer", "Customer"),
         ("guide", "Guide"),
-        ("admin", "Admin"),
     ) 
 
     # First and last name do not cover name patterns around the globe
-    name = CharField(_("Name of User"), blank=True, max_length=255)
+    name = CharField(_("Name of User"), max_length=255, blank=False, null=False)
 
     role = CharField(
         max_length=20,

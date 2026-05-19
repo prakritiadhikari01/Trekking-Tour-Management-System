@@ -1,13 +1,26 @@
 from rest_framework import serializers
+from trekking_and_tour_management_system.users.models import User, TrekPackage
 
-from trekking_and_tour_management_system.users.models import User
 
+class UserSerializer(serializers.ModelSerializer):
 
-class UserSerializer(serializers.ModelSerializer[User]):
     class Meta:
         model = User
-        fields = ["name", "url"]
+        fields = [
+            "id",
+            "email",
+            "name",
+            "role",
+        ]
+        read_only_fields = ["role"]
 
-        extra_kwargs = {
-            "url": {"view_name": "api:user-detail", "lookup_field": "pk"},
-        }
+class TrekPackageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrekPackage
+        fields = [
+            "id",
+            "name",
+            "description",
+            "price",
+            "available",
+        ]   
