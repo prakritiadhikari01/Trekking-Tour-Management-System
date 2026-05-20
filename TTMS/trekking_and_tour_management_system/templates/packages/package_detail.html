@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ package.title }}</title>
+</head>
+<body>
+
+<h1>{{ package.title }}</h1>
+
+<img src="{{ package.image.url }}" width="500">
+
+<p>
+    Destination: {{ package.destination }}
+</p>
+
+<p>
+    Duration: {{ package.duration }} days
+</p>
+
+<p>
+    Difficulty: {{ package.difficulty }}
+</p>
+
+<p>
+    Price: ${{ package.price }}
+</p>
+
+<p>
+    {{ package.description }}
+</p>
+</body>
+</html>
