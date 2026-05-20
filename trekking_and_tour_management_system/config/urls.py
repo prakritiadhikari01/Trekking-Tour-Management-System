@@ -23,7 +23,6 @@ urlpatterns = [
     path("api/auth/", include("trekking_and_tour_management_system.users.api.urls")),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("packages/", include("trekking_and_tour_management_system.packages.urls", namespace="packages")),
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
 ]

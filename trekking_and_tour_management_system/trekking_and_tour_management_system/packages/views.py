@@ -47,15 +47,3 @@ def package_detail(request, slug):
         context,
     )
 
-class TrekPackageViewSet(viewsets.ModelViewSet):
-    queryset = TrekPackage.objects.all()
-    serializer_class = TrekPackageSerializer
-
-    def get_queryset(self):
-        user = self.request.user
-
-        # customers see available packages
-        if user.role == "customer":
-            return TrekPackage.objects.filter(available=True)
-
-        return TrekPackage.objects.all()

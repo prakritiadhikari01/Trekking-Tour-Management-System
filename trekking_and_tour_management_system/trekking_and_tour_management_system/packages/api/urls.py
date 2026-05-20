@@ -1,15 +1,7 @@
 from rest_framework.routers import DefaultRouter
-
-from trekking_and_tour_management_system.packages.api.views import (
-    TrekPackageViewSet,
-)
+from trekking_and_tour_management_system.packages.api.views import TrekPackageViewSet
 
 router = DefaultRouter()
-
-router.register(
-    r"packages",
-    TrekPackageViewSet,
-    basename="packages",
-)
+router.register(r"", TrekPackageViewSet, basename="packages")
 
 urlpatterns = router.urls

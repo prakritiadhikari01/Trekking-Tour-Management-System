@@ -45,3 +45,5 @@ class TrekPackageViewSet(viewsets.ModelViewSet):
             return [IsAuthenticatedOrReadOnly()]
 
         return [IsAdmin()]
+    
+    
