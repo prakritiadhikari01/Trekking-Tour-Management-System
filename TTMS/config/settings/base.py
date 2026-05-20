@@ -3,8 +3,9 @@
 
 import ssl
 from pathlib import Path
-
+import os
 import environ
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # trekking_and_tour_management_system/
@@ -384,3 +385,8 @@ JAZZMIN_SETTINGS = {
     "site_header": "Trekking & Tour System",
     "site_brand": "Tour Manager",
 }
+
+load_dotenv()
+KHALTI_SECRET_KEY = os.getenv("KHALTI_SECRET_KEY")
+KHALTI_INITIATE_URL = os.getenv("KHALTI_INITIATE_URL")
+KHALTI_LOOKUP_URL = os.getenv("KHALTI_LOOKUP_URL")
