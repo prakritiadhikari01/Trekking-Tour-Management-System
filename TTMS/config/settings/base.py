@@ -3,8 +3,9 @@
 
 import ssl
 from pathlib import Path
-
+import os
 import environ
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # trekking_and_tour_management_system/
@@ -128,7 +129,8 @@ AUTHENTICATION_BACKENDS = [
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
 AUTH_USER_MODEL = "users.User"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
-LOGIN_REDIRECT_URL = "users:redirect"
+# LOGIN_REDIRECT_URL = "users:redirect"
+LOGIN_REDIRECT_URL = "/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
 LOGIN_URL = "account_login"
 
@@ -354,3 +356,8 @@ JAZZMIN_SETTINGS = {
     "site_header": "Trekking & Tour System",
     "site_brand": "Tour Manager",
 }
+
+load_dotenv()
+KHALTI_SECRET_KEY = os.getenv("KHALTI_SECRET_KEY")
+KHALTI_INITIATE_URL = os.getenv("KHALTI_INITIATE_URL")
+KHALTI_LOOKUP_URL = os.getenv("KHALTI_LOOKUP_URL")
