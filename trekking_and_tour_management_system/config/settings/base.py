@@ -108,6 +108,7 @@ LOCAL_APPS = [
     "trekking_and_tour_management_system.payments",
     "trekking_and_tour_management_system.reviews",
     "trekking_and_tour_management_system.packages",
+    "trekking_and_tour_management_system.guide_applications",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
