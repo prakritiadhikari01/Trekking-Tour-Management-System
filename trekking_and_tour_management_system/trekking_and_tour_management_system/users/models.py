@@ -31,6 +31,7 @@ class User(AbstractUser):
     ROLE_CHOICES = (
         ("customer", "Customer"),
         ("guide", "Guide"),
+        ("admin", "Admin"),
     ) 
 
     # First and last name do not cover name patterns around the globe

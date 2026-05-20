@@ -1,5 +1,3 @@
-from allauth.account.forms import SignupForm
-from allauth.socialaccount.forms import SignupForm as SocialSignupForm
 from django import forms
 from django.contrib.auth import forms as admin_forms
 from django.forms import EmailField
@@ -29,7 +27,7 @@ class UserAdminCreationForm(admin_forms.AdminUserCreationForm):
         }
 
 
-class UserSignupForm(SignupForm):
+class UserSignupForm():
     """
     Form that will be rendered on a user sign up section/screen.
     Default fields will be added automatically.
@@ -48,7 +46,7 @@ class UserSignupForm(SignupForm):
         user.save()
         return user
 
-class UserSocialSignupForm(SocialSignupForm):
+class UserSocialSignupForm():
     """
     Renders the form when user has signed up using social accounts.
     Default fields will be added automatically.

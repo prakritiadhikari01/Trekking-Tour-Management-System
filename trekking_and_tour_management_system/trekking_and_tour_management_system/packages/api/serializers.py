@@ -1,0 +1,39 @@
+from rest_framework import serializers
+
+from rest_framework import serializers
+
+from trekking_and_tour_management_system.packages.models import Category, TrekPackage
+from trekking_and_tour_management_system.users.models import User
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = [
+            "id",
+            "name",
+            "slug",
+        ]
+
+
+class TrekPackageSerializer(serializers.ModelSerializer):
+
+    category = CategorySerializer(read_only=True)
+
+    class Meta:
+        model = TrekPackage
+        fields = [
+            "id",
+            "title",
+            "slug",
+            "category",
+            "destination",
+            "duration",
+            "price",
+            "difficulty",
+            "description",
+            "image",
+            "featured",
+            "available",
+            "created_at",
+        ]

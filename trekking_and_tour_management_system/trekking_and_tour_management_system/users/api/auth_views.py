@@ -1,79 +1,78 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import get_user_model
-from django.contrib.auth.hashers import make_password
+from rest_framework.permissions import AllowAny
 from django.contrib.auth import authenticate
+from django.contrib.auth import get_user_model
+
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from .serializers import RegisterSerializer
 
 User = get_user_model()
 
 
 class RegisterAPIView(APIView):
+
+    permission_classes = [AllowAny]
     authentication_classes = []
-    permission_classes = []
 
     def post(self, request):
-        data = request.data
 
-        name = data.get("name")
-        email = data.get("email")
-        password = data.get("password")
-        role = data.get("role", "customer")
+        serializer = RegisterSerializer(data=request.data)
 
-        if not name or not email or not password:
-            return Response(
-                {"error": "name, email, password required"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        if serializer.is_valid():
 
-        if User.objects.filter(email=email).exists():
-            return Response(
-                {"error": "User already exists"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            user = serializer.save()
 
-        user = User.objects.create(
-            name=name,
-            email=email,
-            role=role,
-            password=make_password(password)
-        )
-        
+            refresh = RefreshToken.for_user(user)
 
-        return Response(
-            {
-                "message": "User created successfully",
+            return Response({
+                "message": "User registered successfully",
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
                 "user": {
                     "id": user.id,
                     "name": user.name,
                     "email": user.email,
                     "role": user.role
                 }
-            },
-            status=status.HTTP_201_CREATED
-        )
-    
+            })
+
+        return Response(serializer.errors, status=400)
+
+
 class LoginAPIView(APIView):
+
+    permission_classes = [AllowAny]
     authentication_classes = []
-    permission_classes = []
 
     def post(self, request):
+
         email = request.data.get("email")
         password = request.data.get("password")
 
-        user = authenticate(username=email, password=password)
+        user = authenticate(
+            request,
+            email=email,
+            password=password
+        )
 
-        if not user:
+        if user is None:
             return Response(
                 {"error": "Invalid credentials"},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
+        refresh = RefreshToken.for_user(user)
+
         return Response({
-            "message": "Login successful",
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
             "user": {
                 "id": user.id,
                 "name": user.name,
+                "email": user.email,
                 "role": user.role
             }
         })

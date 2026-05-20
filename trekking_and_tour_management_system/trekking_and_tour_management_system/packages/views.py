@@ -1,6 +1,9 @@
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
+from rest_framework import viewsets
+
+from trekking_and_tour_management_system.packages.api.serializers import TrekPackageSerializer
 
 from .models import TrekPackage
 
@@ -43,3 +46,16 @@ def package_detail(request, slug):
         "packages/package_detail.html",
         context,
     )
+
+class TrekPackageViewSet(viewsets.ModelViewSet):
+    queryset = TrekPackage.objects.all()
+    serializer_class = TrekPackageSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+
+        # customers see available packages
+        if user.role == "customer":
+            return TrekPackage.objects.filter(available=True)
+
+        return TrekPackage.objects.all()

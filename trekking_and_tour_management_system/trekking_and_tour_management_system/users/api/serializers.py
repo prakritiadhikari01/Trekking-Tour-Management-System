@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from trekking_and_tour_management_system.users.models import User, TrekPackage
+from trekking_and_tour_management_system.users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -14,13 +14,21 @@ class UserSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["role"]
 
-class TrekPackageSerializer(serializers.ModelSerializer):
+class RegisterSerializer(serializers.ModelSerializer):
+
+    password = serializers.CharField(write_only=True)
+
     class Meta:
-        model = TrekPackage
-        fields = [
-            "id",
-            "name",
-            "description",
-            "price",
-            "available",
-        ]   
+        model = User
+        fields = ["name", "email", "password"]
+
+    def create(self, validated_data):
+
+        user = User.objects.create_user(
+            name=validated_data["name"],
+            email=validated_data["email"],
+            password=validated_data["password"],
+            role="customer"
+        )
+
+        return user
