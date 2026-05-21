@@ -386,7 +386,14 @@ JAZZMIN_SETTINGS = {
     "site_brand": "Tour Manager",
 }
 
-load_dotenv()
+env_path = BASE_DIR / ".envs" / ".local" / ".django"
+
+print("ENV PATH:", env_path)
+print("ENV EXISTS:", env_path.exists())
+
+load_dotenv(dotenv_path=env_path, override=True)
+
 KHALTI_SECRET_KEY = os.getenv("KHALTI_SECRET_KEY")
 KHALTI_INITIATE_URL = os.getenv("KHALTI_INITIATE_URL")
 KHALTI_LOOKUP_URL = os.getenv("KHALTI_LOOKUP_URL")
+
