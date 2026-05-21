@@ -1,17 +1,16 @@
 import requests
 from django.conf import settings
+from django.db import transaction
+from django.http import HttpResponse
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from bookings.models import Booking
 from payments.models import Payment
-from django.http import HttpResponse
 
 
-# =========================
-# INITIATE PAYMENT
-# =========================
 class KhaltiInitiateView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -19,62 +18,72 @@ class KhaltiInitiateView(APIView):
         try:
             booking_id = request.data.get("booking_id")
 
+            if not booking_id:
+                return Response({"error": "booking_id is required"}, status=400)
+
             booking = Booking.objects.get(id=booking_id, user=request.user)
 
-            # create or get payment
-            payment, created = Payment.objects.get_or_create(
+            # prevent multiple pending payments
+            payment = Payment.objects.filter(
                 booking=booking,
-                user=request.user,
-                defaults={
-                    "amount": booking.total_price,
-                    "status": "PENDING"
-                }
-            )
+                status="PENDING"
+            ).first()
 
-            # IMPORTANT: DO NOT use verify URL here
+            if not payment:
+                payment = Payment.objects.create(
+                    booking=booking,
+                    user=request.user,
+                    amount=booking.total_price,
+                    status="PENDING"
+                )
+
             payload = {
                 "return_url": "http://127.0.0.1:8000/api/payments/payment/success/",
                 "website_url": "http://127.0.0.1:8000",
-                "amount": int(payment.amount * 100),  # paisa
+                "amount": int(payment.amount * 100),
                 "purchase_order_id": str(payment.id),
                 "purchase_order_name": f"Booking #{booking.id}",
             }
 
-            headers = {
-                "Authorization": f"Key {settings.KHALTI_SECRET_KEY}",
-                "Content-Type": "application/json"
-            }
+            try:
+                response = requests.post(
+                    settings.KHALTI_INITIATE_URL,
+                    json=payload,
+                    headers={
+                        "Authorization": f"Key {settings.KHALTI_SECRET_KEY}",
+                        "Content-Type": "application/json"
+                    },
+                    timeout=10
+                )
+            except requests.RequestException as e:
+                return Response({"error": "Khalti request failed", "details": str(e)}, status=500)
 
-            response = requests.post(
-                settings.KHALTI_INITIATE_URL,
-                json=payload,
-                headers=headers
-            )
+            if response.status_code != 200:
+                return Response({
+                    "error": "Khalti initiate failed",
+                    "details": response.text
+                }, status=400)
 
             data = response.json()
 
-            if response.status_code == 200:
-                payment.pidx = data.get("pidx")
-                payment.save()
+            if not data.get("pidx") or not data.get("payment_url"):
+                return Response({"error": "Invalid Khalti response"}, status=500)
 
-                return Response({
-                    "message": "Payment initiated",
-                    "payment_url": data.get("payment_url"),
-                    "pidx": payment.pidx
-                })
+            payment.pidx = data["pidx"]
+            payment.save()
 
-            return Response(data, status=400)
+            return Response({
+                "message": "Payment initiated",
+                "payment_url": data["payment_url"],
+                "pidx": payment.pidx
+            })
 
         except Booking.DoesNotExist:
             return Response({"error": "Booking not found"}, status=404)
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
-
-
-# =========================
-# VERIFY PAYMENT
-# =========================
+        
 class KhaltiVerifyView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -85,43 +94,49 @@ class KhaltiVerifyView(APIView):
             if not pidx:
                 return Response({"error": "pidx is required"}, status=400)
 
-            # IMPORTANT: user check added
-            payment = Payment.objects.get(
+            payment = Payment.objects.select_related("booking").get(
                 pidx=pidx,
                 user=request.user
             )
 
-            headers = {
-                "Authorization": f"Key {settings.KHALTI_SECRET_KEY}",
-                "Content-Type": "application/json",
-            }
+            try:
+                response = requests.post(
+                    settings.KHALTI_LOOKUP_URL,
+                    json={"pidx": pidx},
+                    headers={
+                        "Authorization": f"Key {settings.KHALTI_SECRET_KEY}",
+                        "Content-Type": "application/json"
+                    },
+                    timeout=10
+                )
+            except requests.RequestException as e:
+                return Response({"error": "Khalti verify failed", "details": str(e)}, status=500)
 
-            response = requests.post(
-                settings.KHALTI_LOOKUP_URL,
-                json={"pidx": pidx},
-                headers=headers
-            )
+            if response.status_code != 200:
+                return Response({
+                    "error": "Khalti verification failed",
+                    "details": response.text
+                }, status=400)
 
             data = response.json()
 
-            # =========================
-            # PAYMENT SUCCESS
-            # =========================
+            # -------------------------
+            # SUCCESS CASE
+            # -------------------------
             if data.get("status") == "Completed":
 
-                payment.status = "PAID"
-                payment.transaction_id = (
-                    data.get("transaction_id")
-                    or data.get("idx")
-                    or pidx
-                )
-                payment.save()
+                with transaction.atomic():
+                    payment.status = "COMPLETED"
+                    payment.transaction_id = (
+                        data.get("transaction_id")
+                        or data.get("idx")
+                        or pidx
+                    )
+                    payment.save()
 
-                booking = payment.booking
-
-                # adjust field name if needed
-                booking.status = "CONFIRMED"
-                booking.save()
+                    booking = payment.booking
+                    booking.status = "CONFIRMED"   # adjust if needed
+                    booking.save()
 
                 return Response({
                     "message": "Payment successful",
@@ -129,14 +144,15 @@ class KhaltiVerifyView(APIView):
                     "transaction_id": payment.transaction_id
                 })
 
-            # =========================
-            # PAYMENT FAILED / PENDING
-            # =========================
+            # -------------------------
+            # FAILED CASE
+            # -------------------------
             payment.status = "FAILED"
             payment.save()
 
             return Response({
                 "message": "Payment not completed",
+                "status": data.get("status"),
                 "data": data
             }, status=400)
 
@@ -145,6 +161,3 @@ class KhaltiVerifyView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
-        
-def payment_success(request):
-    return HttpResponse("Payment Successful You can close this page.")        
