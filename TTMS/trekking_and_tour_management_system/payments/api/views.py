@@ -120,9 +120,7 @@ class KhaltiVerifyView(APIView):
 
             data = response.json()
 
-            # -------------------------
-            # SUCCESS CASE
-            # -------------------------
+            
             if data.get("status") == "Completed":
 
                 with transaction.atomic():
@@ -135,23 +133,26 @@ class KhaltiVerifyView(APIView):
                     payment.save()
 
                     booking = payment.booking
-                    booking.status = "CONFIRMED"   # adjust if needed
+                    booking.payment_status = "paid" 
+                    booking.booking_status = "confirmed"  # adjust if needed
                     booking.save()
 
                 return Response({
                     "message": "Payment successful",
+                    "payment_status": payment.status,
+                    "booking_status": booking.payment_status,
                     "booking_id": booking.id,
                     "transaction_id": payment.transaction_id
                 })
 
-            # -------------------------
-            # FAILED CASE
-            # -------------------------
+           
             payment.status = "FAILED"
             payment.save()
 
             return Response({
                 "message": "Payment not completed",
+                "payment_status": payment.status,
+                "booking_status": booking.payment_status,
                 "status": data.get("status"),
                 "data": data
             }, status=400)

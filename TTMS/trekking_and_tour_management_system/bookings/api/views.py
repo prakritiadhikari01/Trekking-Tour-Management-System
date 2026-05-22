@@ -3,9 +3,8 @@ from bookings.models import Booking
 from .serializers import BookingSerializer
 
 
-# =========================
+
 # LIST + CREATE BOOKINGS
-# =========================
 class BookingListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -25,10 +24,7 @@ class BookingListCreateAPIView(generics.ListCreateAPIView):
             total_price=total_price
         )
 
-
-# =========================
 # RETRIEVE + UPDATE + DELETE
-# =========================
 class BookingDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
