@@ -319,6 +319,12 @@ class DownloadInvoicePDFView(APIView):
         # =====================================
         # BOOKING TABLE
         # =====================================
+        payment_display = (
+            "Paid"
+            if payment.status == "COMPLETED"
+            else payment.status.title()
+)
+        booking_display = booking.booking_status.title()
         table_data = [
             [
                 "Package",
@@ -331,8 +337,8 @@ class DownloadInvoicePDFView(APIView):
                 package.title,
                 str(booking.number_of_people),
                 f"NPR {payment.amount}",
-                payment.status,
-                booking.booking_status
+                payment_display,
+                booking_display
             ]
         ]
 

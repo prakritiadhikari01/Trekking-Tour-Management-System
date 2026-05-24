@@ -8,6 +8,14 @@ from trekking_and_tour_management_system.packages.models import TrekPackage
 from .forms import BookingForm
 from .models import Booking
 
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
+from django.db.models import Q
+
+from bookings.models import Booking
+from payments.models import Payment
+from bookings.api.serializers import BookingHistorySerializer
+
 def booking_home(request):
     packages = TrekPackage.objects.all()
     return render(request, "bookings/home.html", {
@@ -83,3 +91,4 @@ def my_bookings(request):
         "bookings/my_bookings.html",
         context
     )
+

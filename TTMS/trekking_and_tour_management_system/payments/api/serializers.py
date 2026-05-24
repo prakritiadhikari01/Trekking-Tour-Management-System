@@ -7,3 +7,4 @@ class PaymentSerializer(serializers.ModelSerializer):
         model = Payment
         fields = "__all__"
         read_only_fields = ["status", "pidx", "transaction_id"]
+
