@@ -81,6 +81,33 @@ DEFAULT_FROM_EMAIL = env(
     "DJANGO_DEFAULT_FROM_EMAIL",
     default="Trekking and Tour Management System <noreply@example.com>",
 )
+EMAIL_HOST = env("DJANGO_EMAIL_HOST", default="")
+EMAIL_PORT = env.int("DJANGO_EMAIL_PORT", default=587)
+
+EMAIL_HOST_USER = env(
+    "DJANGO_EMAIL_HOST_USER",
+    default=""
+)
+
+EMAIL_HOST_PASSWORD = env(
+    "DJANGO_EMAIL_HOST_PASSWORD",
+    default=""
+)
+
+EMAIL_USE_TLS = env.bool(
+    "DJANGO_EMAIL_USE_TLS",
+    default=True
+)
+
+DEFAULT_FROM_EMAIL = env(
+    "DJANGO_DEFAULT_FROM_EMAIL",
+    default="webmaster@localhost"
+)
+
+SERVER_EMAIL = env(
+    "DJANGO_SERVER_EMAIL",
+    default=DEFAULT_FROM_EMAIL
+)
 # https://docs.djangoproject.com/en/dev/ref/settings/#server-email
 SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-subject-prefix

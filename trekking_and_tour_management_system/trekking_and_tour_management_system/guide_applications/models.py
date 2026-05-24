@@ -1,38 +1,24 @@
 from django.db import models
-from trekking_and_tour_management_system.users.models import User
-
 
 class GuideApplication(models.Model):
-
-    STATUS_PENDING = "pending"
-    STATUS_APPROVED = "approved"
-    STATUS_REJECTED = "rejected"
-
-    STATUS_CHOICES = [
-        (STATUS_PENDING, "Pending"),
-        (STATUS_APPROVED, "Approved"),
-        (STATUS_REJECTED, "Rejected"),
-    ]
-
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="guide_applications"
+    STATUS_CHOICES = (
+        ("PENDING", "Pending"),
+        ("ACCEPTED", "Accepted"),
+        ("REJECTED", "Rejected"),
     )
 
-    portfolio_link = models.URLField()
+    full_name = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
+    phone_number = models.CharField(max_length=20)
     experience = models.TextField()
+    languages = models.CharField(max_length=255)
 
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default=STATUS_PENDING
-    )
+    cv = models.FileField(upload_to="guide_applications/cv/")
+    citizenship_document = models.FileField(upload_to="guide_applications/documents/", null=True, blank=True)
 
-    admin_note = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
 
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user.email} - {self.status}"
+        return self.full_name

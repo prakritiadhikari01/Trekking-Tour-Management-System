@@ -1,7 +1,9 @@
-
 from typing import ClassVar
 
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import Group
+from django.contrib.auth.models import Permission
+from django.db import models
 from django.db.models import CharField
 from django.db.models import EmailField
 from django.urls import reverse
@@ -11,11 +13,50 @@ from .managers import UserManager
 
 
 class User(AbstractUser):
-    """
-    Default custom user model for Trekking and Tour Management System.
-    If adding fields that need to be filled at user signup,
-    check forms.SignupForm and forms.SocialSignupForms accordingly.
-    """
+
+    username = None
+    first_name = None
+    last_name = None
+
+    ROLE_CHOICES = (
+        ("customer", "Customer"),
+        ("guide", "Guide"),
+        ("admin", "Admin"),
+    )
+
+    name = CharField(
+        _("Name of User"),
+        max_length=255,
+    )
+
+    email = EmailField(
+        _("email address"),
+        unique=True,
+    )
+
+    role = CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default="customer",
+    )
+
+    groups = models.ManyToManyField(
+        Group,
+        related_name="custom_user_groups",
+        blank=True,
+    )
+
+    user_permissions = models.ManyToManyField(
+        Permission,
+        related_name="custom_user_permissions",
+        blank=True,
+    )
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
+
+    objects: ClassVar[UserManager] = UserManager()
+
     @property
     def is_customer(self):
         return self.role == "customer"
@@ -28,41 +69,11 @@ class User(AbstractUser):
     def is_admin_role(self):
         return self.role == "admin"
 
-    ROLE_CHOICES = (
-        ("customer", "Customer"),
-        ("guide", "Guide"),
-        ("admin", "Admin"),
-    ) 
-
-    # First and last name do not cover name patterns around the globe
-    name = CharField(_("Name of User"), max_length=255, blank=False, null=False)
-
-    role = CharField(
-        max_length=20,
-        choices=ROLE_CHOICES,
-        default="customer",
-    )
-    
-    first_name = None  # type: ignore[assignment]
-    last_name = None  # type: ignore[assignment]
-    email = EmailField(_("email address"), unique=True)
-    username = None  # type: ignore[assignment]
-
-    
-
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
-
-    
-
-    
-    objects: ClassVar[UserManager] = UserManager()
-
     def get_absolute_url(self) -> str:
-        """Get URL for user's detail view.
+        return reverse(
+            "users:detail",
+            kwargs={"pk": self.id},
+        )
 
-        Returns:
-            str: URL for user detail.
-
-        """
-        return reverse("users:detail", kwargs={"pk": self.id})
+    def __str__(self):
+        return self.email

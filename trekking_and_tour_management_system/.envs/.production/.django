@@ -13,7 +13,16 @@ DJANGO_SECURE_SSL_REDIRECT=False
 
 # Email
 # ------------------------------------------------------------------------------
-DJANGO_SERVER_EMAIL=
+DJANGO_SERVER_EMAIL=prakriti.adhikari.456@gmail.com
+
+DJANGO_EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+
+DJANGO_EMAIL_HOST=smtp.gmail.com
+DJANGO_EMAIL_PORT=587
+DJANGO_EMAIL_HOST_USER=prakriti.adhikari.456@gmail.com
+DJANGO_EMAIL_HOST_PASSWORD=lyue dcxc tctw vzzr
+DJANGO_EMAIL_USE_TLS=True
+DJANGO_DEFAULT_FROM_EMAIL=prakriti.adhikari.456@gmail.com
 
 
 # django-allauth

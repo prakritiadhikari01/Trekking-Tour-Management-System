@@ -21,6 +21,8 @@ urlpatterns = [
     # User management
     # Your stuff: custom urls includes go here
     path("api/auth/", include("trekking_and_tour_management_system.users.api.urls")),
+    path("api/guides/",include("trekking_and_tour_management_system.guides.api.urls"), name="guides-api"),
+    path("api/guide-applications/",include("trekking_and_tour_management_system.guide_applications.api.urls"), name="guide-applications-api"),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     # Media files

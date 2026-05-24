@@ -17,12 +17,13 @@ from trekking_and_tour_management_system.users.permissions import (
 )
 
 from rest_framework.permissions import SAFE_METHODS
-
+from rest_framework.parsers import MultiPartParser, FormParser
 
 class TrekPackageViewSet(viewsets.ModelViewSet):
 
+    queryset = TrekPackage.objects.all()
     serializer_class = TrekPackageSerializer
-
+    parser_classes = [MultiPartParser, FormParser]
     def get_queryset(self):
 
         user = self.request.user

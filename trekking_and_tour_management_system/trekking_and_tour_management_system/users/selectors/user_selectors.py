@@ -9,8 +9,3 @@ def get_user_by_id(user_id):
 def get_all_users():
 
     return User.objects.all()
-
-
-def get_guides():
-
-    return User.objects.filter(role="guide")

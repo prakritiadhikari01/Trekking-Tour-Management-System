@@ -1,39 +1,52 @@
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import status, viewsets
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from timezone_field import rest_framework
 
-from trekking_and_tour_management_system.guide_applications.api.serializers import GuideApplicationSerializer
+from trekking_and_tour_management_system.guide_applications.api.serializers import (
+    GuideApplicationSerializer,
+)
+
 from trekking_and_tour_management_system.guide_applications.models import GuideApplication
-from trekking_and_tour_management_system.guide_applications.permissions import IsAdminUser
-from trekking_and_tour_management_system.guide_applications.models import GuideApplication
-from trekking_and_tour_management_system.guide_applications.services.guide_application_service import GuideApplicationService
+from trekking_and_tour_management_system.guide_applications.services.guide_application_service import (
+    send_application_received_email,
+)
+from rest_framework.permissions import AllowAny
+
+class GuideApplicationCreateAPIView(APIView):
+
+    permission_classes = [AllowAny]
+
+    authentication_classes = []
+
+    def post(self, request):
+
+        serializer = GuideApplicationSerializer(
+            data=request.data
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        application = serializer.save()
+
+        send_application_received_email(application)
+
+        return Response(
+            {
+                "message": "Application submitted successfully."
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
 class GuideApplicationViewSet(viewsets.ModelViewSet):
 
+    queryset = GuideApplication.objects.all().order_by("-created_at")
+
     serializer_class = GuideApplicationSerializer
-    queryset = GuideApplication.objects.all()
 
     def get_permissions(self):
 
-        if self.action in ["list", "retrieve", "update", "partial_update"]:
-            return [IsAuthenticated(), IsAdminUser()]
+        if self.action in ["create"]:
+            return [AllowAny()]
 
-        return [IsAuthenticated()]
-
-    def perform_create(self, serializer):
-        GuideApplicationService.create_application(
-            user=self.request.user,
-            validated_data=serializer.validated_data
-        )
-
-    def perform_update(self, serializer):
-        instance = serializer.instance
-        status = self.request.data.get("status")
-
-        if status == "approved":
-            GuideApplicationService.approve_application(instance)
-
-        elif status == "rejected":
-            GuideApplicationService.reject_application(
-                instance,
-                self.request.data.get("admin_note")
-            )
+        return super().get_permissions()

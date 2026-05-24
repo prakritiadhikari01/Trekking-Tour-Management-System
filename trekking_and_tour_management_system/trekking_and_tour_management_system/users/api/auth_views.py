@@ -66,9 +66,24 @@ class LoginAPIView(APIView):
 
         refresh = RefreshToken.for_user(user)
 
+        if user.role == "GUIDE":
+
+            dashboard = "guide-dashboard"
+
+        elif user.role == "ADMIN":
+
+            dashboard = "admin-dashboard"
+
+        else:
+
+            dashboard = "customer-dashboard"
+
+
         return Response({
+            "message": "Login successful",
             "refresh": str(refresh),
             "access": str(refresh.access_token),
+            "dashboard": dashboard,
             "user": {
                 "id": user.id,
                 "name": user.name,

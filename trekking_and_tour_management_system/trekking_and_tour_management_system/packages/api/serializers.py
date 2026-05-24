@@ -18,7 +18,9 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class TrekPackageSerializer(serializers.ModelSerializer):
 
-    category = CategorySerializer(read_only=True)
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all()
+    )
 
     class Meta:
         model = TrekPackage

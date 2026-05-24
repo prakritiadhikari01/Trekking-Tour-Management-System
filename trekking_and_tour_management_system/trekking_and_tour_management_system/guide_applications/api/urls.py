@@ -1,8 +1,13 @@
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 
-from trekking_and_tour_management_system.guide_applications.api.views import GuideApplicationViewSet
+from trekking_and_tour_management_system.guide_applications.api.views import (
+    GuideApplicationCreateAPIView,
+)
 
-router = DefaultRouter()
-router.register(r"", GuideApplicationViewSet, basename="guide-applications")
-
-urlpatterns = router.urls
+urlpatterns = [
+    path(
+        "apply/",
+        GuideApplicationCreateAPIView.as_view(),
+        name="guide-application",
+    ),
+]
