@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from trekking_and_tour_management_system.users.models import User
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -32,3 +35,28 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
 
         return user
+    
+class LoginSerializer(serializers.Serializer):
+
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+
+        email = attrs.get("email")
+        password = attrs.get("password")
+
+        user = authenticate(
+            email=email,
+            password=password
+        )
+
+        if not user:
+            raise serializers.ValidationError(
+                "Invalid email or password"
+            )
+
+        attrs["user"] = user
+
+        return attrs
+    

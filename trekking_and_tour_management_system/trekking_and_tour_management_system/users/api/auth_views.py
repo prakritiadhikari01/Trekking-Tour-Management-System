@@ -7,7 +7,9 @@ from django.contrib.auth import get_user_model
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .serializers import RegisterSerializer
+
+from .serializers import LoginSerializer, RegisterSerializer
+from drf_spectacular.utils import extend_schema
 
 User = get_user_model()
 
@@ -41,16 +43,22 @@ class RegisterAPIView(APIView):
 
         return Response(serializer.errors, status=400)
 
-
+@extend_schema(
+    request=LoginSerializer,
+)
 class LoginAPIView(APIView):
 
     permission_classes = [AllowAny]
     authentication_classes = []
 
     def post(self, request):
+        
+        serializer = LoginSerializer(data=request.data)
 
-        email = request.data.get("email")
-        password = request.data.get("password")
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+        password = serializer.validated_data["password"]
 
         user = authenticate(
             request,
@@ -66,11 +74,11 @@ class LoginAPIView(APIView):
 
         refresh = RefreshToken.for_user(user)
 
-        if user.role == "GUIDE":
+        if user.role == "guide":
 
             dashboard = "guide-dashboard"
 
-        elif user.role == "ADMIN":
+        elif user.role == "admin":
 
             dashboard = "admin-dashboard"
 

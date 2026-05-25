@@ -9,7 +9,6 @@ class GuideProfileAdmin(admin.ModelAdmin):
     list_display = [
         "user",
         "phone_number",
-        "address",
         "experience",
         "languages",
         "is_verified",

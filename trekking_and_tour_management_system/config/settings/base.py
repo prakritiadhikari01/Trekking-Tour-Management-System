@@ -11,10 +11,11 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 APPS_DIR = BASE_DIR / "trekking_and_tour_management_system"
 env = environ.Env()
 
-READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
+READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=True)
 if READ_DOT_ENV_FILE:
     # OS environment variables take precedence over variables from .env
     env.read_env(str(BASE_DIR / ".env"))
+
 
 # GENERAL
 # ------------------------------------------------------------------------------
@@ -262,7 +263,7 @@ EMAIL_USE_TLS = env.bool(
     "DJANGO_EMAIL_USE_TLS",
     default=True
 )
-
+EMAIL_USE_SSL = False
 DEFAULT_FROM_EMAIL = env(
     "DJANGO_DEFAULT_FROM_EMAIL",
     default="webmaster@localhost"

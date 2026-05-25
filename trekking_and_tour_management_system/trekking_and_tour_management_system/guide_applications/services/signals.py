@@ -5,6 +5,11 @@ from trekking_and_tour_management_system.guide_applications.models import GuideA
 
 from trekking_and_tour_management_system.guide_applications.models import GuideApplication
 
+from trekking_and_tour_management_system.guide_applications.services.guide_application_service import (
+        create_guide_account,
+        send_status_email,
+        send_application_received_email,
+    )
 
 @receiver(pre_save, sender=GuideApplication)
 def store_old_status(sender, instance, **kwargs):
@@ -16,12 +21,6 @@ def store_old_status(sender, instance, **kwargs):
 
 @receiver(post_save, sender=GuideApplication)
 def handle_status_change(sender, instance, created, **kwargs):
-
-    from trekking_and_tour_management_system.guide_applications.services.guide_application_service import (
-        create_guide_account,
-        send_status_email,
-        send_application_received_email,
-    )
 
     # NEW APPLICATION CREATED
     if created:

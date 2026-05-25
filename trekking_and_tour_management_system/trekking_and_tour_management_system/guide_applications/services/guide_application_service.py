@@ -29,16 +29,57 @@ We will review your application soon.
 
 def create_guide_account(application):
     from trekking_and_tour_management_system.guides.models import Guide
-    password = generate_password()
     User = get_user_model()
-    user = User.objects.create_user(
-        username=application.email,
-        email=application.email,
-        password=password
-    )
 
-    user.first_name = application.full_name
-    user.save()
+    existing_user = User.objects.filter(
+        email=application.email
+    ).first()
+
+    if existing_user:
+
+        existing_user.role = "guide"
+        existing_user.name = application.full_name
+        existing_user.save()
+
+        Guide.objects.get_or_create(
+            user=existing_user,
+            defaults={
+                "full_name": application.full_name,
+                "phone_number": application.phone_number,
+                "experience": application.experience,
+                "languages": application.languages,
+                "created_from_application": application,
+            }
+        )
+        send_mail(
+            subject="Guide Access Approved",
+            message=f"""
+Hi {application.full_name},
+
+Congratulations!
+
+Your account has been approved as a Guide.
+
+You can login using your existing password.
+
+Login here:
+http://127.0.0.1:8000/api/auth/login/
+""",
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[application.email],
+        )
+
+        return
+    
+    password = generate_password()
+
+    user = User.objects.create_user(
+        email=application.email,
+        password=password,
+        role="guide",
+        name=application.full_name,
+
+    )
 
     Guide.objects.create(
         user=user,
@@ -46,7 +87,6 @@ def create_guide_account(application):
         phone_number=application.phone_number,
         experience=application.experience,
         languages=application.languages,
-        address=application.address,
         created_from_application=application
     )
 
@@ -54,7 +94,7 @@ def create_guide_account(application):
 
 
 def send_guide_credentials(application, password):
-    login_url = "http://127.0.0.1:8000/login/"
+    login_url = "http://127.0.0.1:8000/api/auth/login/"
 
     message = f"""
 Hi {application.full_name},

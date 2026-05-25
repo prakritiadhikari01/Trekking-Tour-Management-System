@@ -11,7 +11,6 @@ class Guide(models.Model):
     full_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20)
     experience = models.TextField()
-    address = models.TextField(blank=True, null=True)
     languages = models.CharField(max_length=255)
 
     created_from_application = models.OneToOneField(
