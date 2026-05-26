@@ -46,4 +46,3 @@ def package_detail(request, slug):
         "packages/package_detail.html",
         context,
     )
-

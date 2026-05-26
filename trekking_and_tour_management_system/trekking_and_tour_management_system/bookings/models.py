@@ -14,8 +14,7 @@ class Booking(models.Model):
         ("pending", "Pending"),
         ("paid", "Paid"),
         ("failed", "Failed"),
-    )
-
+    )   
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -26,16 +25,6 @@ class Booking(models.Model):
         "packages.TrekPackage",
         on_delete=models.CASCADE,
         related_name="bookings"
-    )
-
-    # ADD THIS
-    assigned_guide = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="assigned_bookings",
-        limit_choices_to={"role": "guide"},
     )
 
     full_name = models.CharField(max_length=255)

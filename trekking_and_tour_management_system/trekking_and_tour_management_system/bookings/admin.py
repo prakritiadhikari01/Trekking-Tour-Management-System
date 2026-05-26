@@ -4,24 +4,28 @@ from .models import Booking
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-
-    list_display = [
-        "id",
+    list_display = (
         "user",
         "package",
-        "booking_status",
-        "payment_status",
-        "assigned_guide",
-        "created_at",
-    ]
-
-    list_filter = [
-        "booking_status",
-        "payment_status",
-    ]
-
-    search_fields = [
         "full_name",
         "email",
+        "phone_number",
+        "number_of_people",
+        "travel_date",
+        "booking_status",
+        "total_price",
+        "created_at",
+    )
+
+    list_filter = (
+        "booking_status",
+        "travel_date",
+        "created_at",
+    )
+
+    search_fields = (
+        "full_name",
+        "email",
+        "phone_number",
         "package__title",
-    ]
+    )

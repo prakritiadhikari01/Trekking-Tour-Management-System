@@ -18,3 +18,22 @@ DJANGO_EMAIL_USE_TLS=True
 
 DJANGO_DEFAULT_FROM_EMAIL=prakriti.adhikari.456@gmail.com
 DJANGO_SERVER_EMAIL=prakriti.adhikari.456@gmail.com
+# General
+# ------------------------------------------------------------------------------
+USE_DOCKER=yes
+IPYTHONDIR=/app/.ipython
+# Redis
+# ------------------------------------------------------------------------------
+REDIS_URL=redis://redis:6379/0
+
+# Celery
+# ------------------------------------------------------------------------------
+
+# Flower
+CELERY_FLOWER_USER=debug
+CELERY_FLOWER_PASSWORD=debug
+
+KHALTI_PUBLIC_KEY=cd53a6468c344c43935ba866d6223ca7
+KHALTI_SECRET_KEY=946ec540ff424ab8893d4202c486807f
+KHALTI_INITIATE_URL=https://dev.khalti.com/api/v2/epayment/initiate/
+KHALTI_LOOKUP_URL=https://dev.khalti.com/api/v2/epayment/lookup/
