@@ -78,7 +78,7 @@ http://127.0.0.1:8000/api/auth/login/
         password=password,
         role="guide",
         name=application.full_name,
-
+        must_change_password=True,
     )
 
     Guide.objects.create(

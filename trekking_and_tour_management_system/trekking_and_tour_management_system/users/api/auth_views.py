@@ -1,14 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
-from .serializers import LoginSerializer, RegisterSerializer
+from .serializers import ChangePasswordSerializer, LoginSerializer, LogoutSerializer, RegisterSerializer
 from drf_spectacular.utils import extend_schema
 
 User = get_user_model()
@@ -42,6 +42,7 @@ class RegisterAPIView(APIView):
             })
 
         return Response(serializer.errors, status=400)
+
 
 @extend_schema(
     request=LoginSerializer,
@@ -96,6 +97,66 @@ class LoginAPIView(APIView):
                 "id": user.id,
                 "name": user.name,
                 "email": user.email,
-                "role": user.role
+                "role": user.role,
+                "must_change_password": user.must_change_password,
             }
+        })
+
+class ChangePasswordAPIView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        serializer = ChangePasswordSerializer(data=request.data)
+
+        serializer.is_valid(raise_exception=True)
+
+        user = request.user
+
+        old_password = serializer.validated_data["old_password"]
+        new_password = serializer.validated_data["new_password"]
+
+        if not user.check_password(old_password):
+
+            return Response(
+                {"error": "Old password incorrect"},
+                status=400
+            )
+
+        user.set_password(new_password)
+
+        user.must_change_password = False
+
+        user.save()
+
+        return Response({
+            "message": "Password changed successfully"
+        })
+    
+class LogoutAPIView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        serializer = LogoutSerializer(data=request.data)
+
+        serializer.is_valid(raise_exception=True)
+
+        refresh_token = serializer.validated_data["refresh"]
+
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+        except Exception:
+
+            return Response(
+                {"error": "Invalid refresh token"},
+                status=400
+            )
+
+        return Response({
+            "message": "Logout successful"
         })

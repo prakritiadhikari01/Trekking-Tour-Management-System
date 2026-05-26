@@ -51,6 +51,9 @@ class User(AbstractUser):
         related_name="custom_user_permissions",
         blank=True,
     )
+    must_change_password = models.BooleanField(
+    default=False
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

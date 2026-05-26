@@ -20,5 +20,14 @@ class GuideApplication(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    account_deleted = models.BooleanField(
+        default=False
+    )
+
+    deleted_at = models.DateTimeField(
+        blank=True,
+        null=True
+    )
+    
     def __str__(self):
         return self.full_name

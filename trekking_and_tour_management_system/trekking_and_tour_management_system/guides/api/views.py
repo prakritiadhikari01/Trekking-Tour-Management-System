@@ -17,4 +17,5 @@ class GuideDashboardAPIView(APIView):
         return Response({
             "message": "Welcome Guide",
             "assigned_tours": [],
+        
         })
