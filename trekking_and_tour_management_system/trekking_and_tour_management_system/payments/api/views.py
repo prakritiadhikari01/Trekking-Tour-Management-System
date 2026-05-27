@@ -1,23 +1,16 @@
-from urllib import response
-
 import requests
 from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponse
 
-from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
-
-
-from io import BytesIO
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.platypus import Table, TableStyle
+from rest_framework.views import APIView
 
 from trekking_and_tour_management_system.bookings.models import Booking
-from trekking_and_tour_management_system.payments.models import Payment
+from trekking_and_tour_management_system.payments.models import Invoice, Payment
+from trekking_and_tour_management_system.payments.services.invoice_service import generate_or_update_invoice
+from trekking_and_tour_management_system.payments.services.khalti_service import ensure_khalti_payment_link
 
 class KhaltiInitiateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -44,45 +37,16 @@ class KhaltiInitiateView(APIView):
                     amount=booking.total_price,
                     status="PENDING"
                 )
-
-            payload = {
-                "return_url": "http://127.0.0.1:8000/api/payments/verify/",
-                "website_url": "http://127.0.0.1:8000",
-                "amount": int(payment.amount * 100),
-                "purchase_order_id": str(payment.id),
-                "purchase_order_name": f"Booking #{booking.id}",
-            }
-
             try:
-                response = requests.post(
-                    settings.KHALTI_INITIATE_URL,
-                    json=payload,
-                    headers={
-                        "Authorization": f"Key {settings.KHALTI_SECRET_KEY}",
-                        "Content-Type": "application/json"
-                    },
-                    timeout=10
-                )
+                payment = ensure_khalti_payment_link(payment)
             except requests.RequestException as e:
                 return Response({"error": "Khalti request failed", "details": str(e)}, status=500)
-
-            if response.status_code != 200:
-                return Response({
-                    "error": "Khalti initiate failed",
-                    "details": response.text
-                }, status=400)
-
-            data = response.json()
-
-            if not data.get("pidx") or not data.get("payment_url"):
-                return Response({"error": "Invalid Khalti response"}, status=500)
-
-            payment.pidx = data["pidx"]
-            payment.save()
+            except ValueError as e:
+                return Response({"error": str(e)}, status=500)
 
             return Response({
                 "message": "Payment initiated",
-                "payment_url": data["payment_url"],
+                "payment_url": payment.payment_url,
                 "pidx": payment.pidx
             })
 
@@ -138,14 +102,10 @@ class KhaltiVerifyView(APIView):
                         or data.get("idx")
                         or pidx
                     )
-                    payment.save()
-
+                    payment.save(update_fields=["status", "transaction_id"])
                     booking = payment.booking
-                    booking.payment_status = "COMPLETED" 
-                    booking.booking_status = "CONFIRMED"  # adjust if needed
-                    booking.save()
-
-                    # generate_invoice_pdf(payment)
+                    booking.booking_status = "CONFIRMED"
+                    booking.save(update_fields=["booking_status", "updated_at"])
 
                 return Response({
                     "message": "Payment successful",
@@ -155,14 +115,14 @@ class KhaltiVerifyView(APIView):
                     "transaction_id": payment.transaction_id
                 })
 
-           
+            booking = payment.booking
             payment.status = "FAILED"
-            payment.save()
+            payment.save(update_fields=["status"])
 
             return Response({
                 "message": "Payment not completed",
                 "payment_status": payment.status,
-                "booking_status": booking.payment_status,
+                "booking_status": booking.booking_status,
                 "status": data.get("status"),
                 "data": data
             }, status=400)
@@ -205,8 +165,13 @@ class InvoiceView(APIView):
                 status=400
             )
 
+        invoice = getattr(payment, "invoice", None)
+        if invoice is None:
+            return Response({"error": "Invoice is being generated. Please retry shortly."}, status=202)
+
+        base_url = getattr(settings, "APP_BASE_URL", "").rstrip("/")
         invoice_data = {
-            "invoice_id": f"INV-{payment.id}",
+            "invoice_id": invoice.invoice_id,
             "customer_name": booking.full_name,
             "email": booking.email,
             "phone_number": booking.phone_number,
@@ -222,192 +187,69 @@ class InvoiceView(APIView):
 
             "payment_status": payment.status,
             "booking_status": booking.booking_status,
-
             "transaction_id": payment.transaction_id,
             "khalti_pidx": payment.pidx,
-
             "created_at": payment.created_at,
+            "invoice_url": f"{base_url}/api/payments/invoices/{invoice.access_token}/download/",
         }
 
         return Response(invoice_data)
 
-        
-class DownloadInvoicePDFView(APIView):
+class DownloadInvoiceByTokenView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, token):
+        try:
+            invoice = Invoice.objects.select_related("payment", "booking").get(
+                access_token=token,
+            )
+        except Invoice.DoesNotExist:
+            return HttpResponse("Invoice not found", status=404)
+
+        if invoice.booking.user_id != request.user.id and not request.user.is_staff:
+            return HttpResponse("Not authorized", status=403)
+        if not invoice.file:
+            return HttpResponse("Invoice file is not ready", status=404)
+        return HttpResponse(
+            invoice.file.read(),
+            content_type="application/pdf",
+            headers={
+                "Content-Disposition": f'attachment; filename="{invoice.invoice_id}.pdf"',
+            },
+        )
+
+
+class DownloadInvoiceByPidxView(APIView):
+    """
+    Backward-compatible invoice endpoint:
+    /api/payments/download-invoice/<pidx>/
+    """
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pidx):
-
         try:
-            payment = Payment.objects.select_related(
-                "booking",
-                "booking__package"
-            ).get(
+            payment = Payment.objects.select_related("booking").get(
                 pidx=pidx,
-                user=request.user
+                user=request.user,
             )
-
         except Payment.DoesNotExist:
             return HttpResponse("Payment not found", status=404)
 
         if payment.status != "COMPLETED":
             return HttpResponse("Invoice not available", status=400)
 
-        booking = payment.booking
-        package = booking.package
-
-        # =====================================
-        # CREATE PDF
-        # =====================================
-        buffer = BytesIO()
-
-        p = canvas.Canvas(buffer, pagesize=A4)
-
-        width, height = A4
-
-        # =====================================
-        # TOP HEADER BAR
-        # =====================================
-        p.setFillColor(colors.HexColor("#0F172A"))
-        p.rect(0, height - 90, width, 90, fill=True, stroke=False)
-
-        # COMPANY TITLE
-        p.setFillColor(colors.white)
-        p.setFont("Helvetica-Bold", 24)
-        p.drawString(50, height - 50, "TREKKING & TOUR")
-
-        p.setFont("Helvetica", 12)
-        p.drawString(50, height - 72, "Professional Travel Invoice")
-
-        # =====================================
-        # INVOICE TITLE
-        # =====================================
-        p.setFillColor(colors.HexColor("#111827"))
-        p.setFont("Helvetica-Bold", 20)
-        p.drawString(400, height - 130, "INVOICE")
-
-        p.setFont("Helvetica", 11)
-        p.drawString(400, height - 150, f"Invoice ID: INV-{payment.id}")
-        p.drawString(400, height - 168, f"Date: {payment.created_at.date()}")
-
-        # =====================================
-        # COMPANY INFO
-        # =====================================
-        p.setFont("Helvetica-Bold", 12)
-        p.drawString(50, height - 140, "Company Details")
-
-        p.setFont("Helvetica", 10)
-        p.drawString(50, height - 160, "Trekking & Tour Management System")
-        p.drawString(50, height - 176, "Pokhara, Nepal")
-        p.drawString(50, height - 192, "support@trekking.com")
-        p.drawString(50, height - 208, "+977-98XXXXXXXX")
-
-        # =====================================
-        # CUSTOMER INFO BOX
-        # =====================================
-        p.setFillColor(colors.HexColor("#F3F4F6"))
-        p.roundRect(40, height - 340, 520, 90, 10, fill=True, stroke=False)
-
-        p.setFillColor(colors.black)
-
-        p.setFont("Helvetica-Bold", 13)
-        p.drawString(55, height - 275, "Customer Details")
-
-        p.setFont("Helvetica", 11)
-        p.drawString(55, height - 295, f"Name: {booking.full_name}")
-        p.drawString(55, height - 313, f"Email: {booking.email}")
-        p.drawString(320, height - 295, f"Phone: {booking.phone_number}")
-        p.drawString(320, height - 313, f"Trip Start Date: {booking.trip_start_date}")
-        p.drawString(320, height - 331, f"Trip End Date: {booking.trip_end_date}")
-
-        # =====================================
-        # BOOKING TABLE
-        # =====================================
-        payment_display = (
-            "Paid"
-            if payment.status == "COMPLETED"
-            else payment.status.title()
-)
-        booking_display = booking.booking_status.title()
-        table_data = [
-            [
-                "Package",
-                "People",
-                "Price",
-                "Payment",
-                "Booking"
-            ],
-            [
-                package.title,
-                str(booking.number_of_people),
-                f"NPR {payment.amount}",
-                payment_display,
-                booking_display
-            ]
-        ]
-
-        table = Table(table_data, colWidths=[180, 70, 90, 90, 90])
-
-        table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#0F172A")),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
-            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ]))
-
-        table.wrapOn(p, width, height)
-        table.drawOn(p, 40, height - 470)
-
-        # =====================================
-        # TOTAL BOX
-        # =====================================
-        p.setFillColor(colors.HexColor("#DCFCE7"))
-        p.roundRect(350, height - 560, 190, 70, 10, fill=True, stroke=False)
-
-        p.setFillColor(colors.black)
-
-        p.setFont("Helvetica-Bold", 14)
-        p.drawString(370, height - 520, "TOTAL PAID")
-
-        p.setFont("Helvetica-Bold", 18)
-        p.drawString(370, height - 545, f"NPR {payment.amount}")
-
-        # =====================================
-        # TRANSACTION INFO
-        # =====================================
-        p.setFont("Helvetica-Bold", 12)
-        p.drawString(50, height - 530, "Transaction Details")
-
-        p.setFont("Helvetica", 11)
-        p.drawString(50, height - 555, f"Transaction ID: {payment.transaction_id}")
-        p.drawString(50, height - 575, f"Khalti PIDX: {payment.pidx}")
-
-        # =====================================
-        # FOOTER
-        # =====================================
-        p.setStrokeColor(colors.HexColor("#CBD5E1"))
-        p.line(40, 80, 550, 80)
-
-        p.setFont("Helvetica-Oblique", 10)
-        p.drawString(170, 60, "Thank you for booking with us!")
-
-        p.setFont("Helvetica", 9)
-        p.drawString(150, 45, "Generated by Trekking & Tour Management System")
-
-        # SAVE PDF
-        p.showPage()
-        p.save()
-
-        # IMPORTANT
-        buffer.seek(0)
+        invoice = getattr(payment, "invoice", None)
+        if not invoice or not invoice.file:
+            try:
+                invoice = generate_or_update_invoice(payment.id)
+            except ValueError:
+                return HttpResponse("Invoice not available", status=400)
 
         return HttpResponse(
-            buffer.getvalue(),
+            invoice.file.read(),
             content_type="application/pdf",
             headers={
-                "Content-Disposition": f'attachment; filename="invoice_{payment.id}.pdf"'
-            }
+                "Content-Disposition": f'attachment; filename="{invoice.invoice_id}.pdf"',
+            },
         )

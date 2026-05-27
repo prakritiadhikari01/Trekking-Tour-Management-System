@@ -8,6 +8,7 @@ from .auth_views import LoginAPIView
 
 
 router = DefaultRouter()
+router.include_format_suffixes = False
 router.register(r"users", UserViewSet, basename="users")
 
 urlpatterns = router.urls + [

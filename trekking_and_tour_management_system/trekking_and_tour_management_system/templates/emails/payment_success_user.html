@@ -1,0 +1,14 @@
+<html><body>
+<h2>Payment Successful - Booking Confirmed</h2>
+<p>Dear {{ customer_name }}, your payment has been verified and booking is confirmed.</p>
+<ul>
+  <li>Booking: #{{ booking_id }}</li>
+  <li>Package: {{ package_title }}</li>
+  <li>Dates: {{ trip_start_date }} to {{ trip_end_date }}</li>
+  <li>Guests: {{ number_of_people }}</li>
+  <li>Amount Paid: NPR {{ total_price }}</li>
+  <li>Payment Reference: {{ payment_reference }}</li>
+</ul>
+<p><a href="{{ invoice_url }}">Download Invoice ({{ invoice_id }})</a></p>
+<p><a href="{{ dashboard_link }}">View dashboard</a></p>
+</body></html>

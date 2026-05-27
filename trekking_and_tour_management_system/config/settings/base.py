@@ -4,6 +4,7 @@
 import ssl
 from pathlib import Path
 import os
+import warnings
 import environ
 from dotenv import load_dotenv
 
@@ -11,6 +12,13 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # trekking_and_tour_management_system/
 APPS_DIR = BASE_DIR / "trekking_and_tour_management_system"
 env = environ.Env()
+IS_WINDOWS = os.name == "nt"
+
+warnings.filterwarnings(
+    "ignore",
+    message="pkg_resources is deprecated as an API.*",
+    module="rest_framework_simplejwt",
+)
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=True)
 if READ_DOT_ENV_FILE:
@@ -281,9 +289,11 @@ EMAIL_TIMEOUT = 5
 # Django Admin URL.
 ADMIN_URL = "admin/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#admins
-ADMINS = ['"Smarika and Prakriti" <smarikatripathi1@gmail.com>']
+ADMINS = [("Smarika and Prakriti", "smarikatripathi1@gmail.com")]
 # https://docs.djangoproject.com/en/dev/ref/settings/#managers
 MANAGERS = ADMINS
+BOOKING_ADMIN_EMAILS = env.list("DJANGO_BOOKING_ADMIN_EMAILS", default=[])
+APP_BASE_URL = env("DJANGO_APP_BASE_URL", default="http://127.0.0.1:8000")
 
 # LOGGING
 # ------------------------------------------------------------------------------
@@ -342,7 +352,11 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_TASK_TIME_LIMIT = 5 * 60
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#task-soft-time-limit
 # TODO: set to whatever value is adequate in your circumstances
-CELERY_TASK_SOFT_TIME_LIMIT = 60
+CELERY_TASK_SOFT_TIME_LIMIT = None if IS_WINDOWS else 60
+# Use solo pool on Windows to avoid multiprocessing signal warnings.
+CELERY_WORKER_POOL = "solo" if IS_WINDOWS else "prefork"
+# Solo pool is single-process by design.
+CELERY_WORKER_CONCURRENCY = 1 if IS_WINDOWS else env.int("CELERY_WORKER_CONCURRENCY", default=4)
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#beat-scheduler
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#worker-send-task-events
@@ -351,6 +365,7 @@ CELERY_WORKER_SEND_TASK_EVENTS = True
 CELERY_TASK_SEND_SENT_EVENT = True
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#worker-hijack-root-logger
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 # django-allauth
 # ------------------------------------------------------------------------------
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", True)
@@ -405,9 +420,6 @@ JAZZMIN_SETTINGS = {
 }
 
 env_path = BASE_DIR / ".envs" / ".local" / ".django"
-
-print("ENV PATH:", env_path)
-print("ENV EXISTS:", env_path.exists())
 
 load_dotenv(dotenv_path=env_path, override=True)
 

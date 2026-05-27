@@ -6,7 +6,6 @@ from trekking_and_tour_management_system.guides.services.guide_services import s
 from trekking_and_tour_management_system.users.permissions import IsGuide
 from trekking_and_tour_management_system.bookings.models import Booking
 from trekking_and_tour_management_system.bookings.guide_assignment_service import assign_guide_to_booking
-from users.permissions import IsGuide
 
 
 

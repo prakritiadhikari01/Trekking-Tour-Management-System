@@ -1,0 +1,12 @@
+Hello {{ customer_name|default:"Team" }},
+
+Booking Reference: #{{ booking_id }}
+Package: {{ package_title }}
+Trip Dates: {{ trip_start_date }} to {{ trip_end_date }}
+Guests: {{ number_of_people }}
+Total: NPR {{ total_price }}
+Booking Status: {{ booking_status }}
+Payment Status: {{ payment_status }}
+Payment Reference: {{ payment_reference }}
+
+Support: {{ support_email }}

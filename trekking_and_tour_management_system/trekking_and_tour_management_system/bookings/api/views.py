@@ -78,7 +78,7 @@ class BookingHistoryView(ListAPIView):
 
         payment_status = self.request.query_params.get("payment_status")
         if payment_status:
-            qs = qs.filter(payment_status=payment_status)
+            qs = qs.filter(payment__status=payment_status)
 
         
         sort = self.request.query_params.get("sort")

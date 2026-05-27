@@ -77,6 +77,6 @@ class BookingHistorySerializer(serializers.ModelSerializer):
             "transaction_id": payment.transaction_id,
             "khalti_pidx": payment.pidx,
             "invoice_url": request.build_absolute_uri(
-                f"/api/payments/invoice/download/{payment.pidx}/"
-            ) if payment.pidx else None
+                f"/api/payments/invoices/{payment.invoice.access_token}/download/"
+            ) if getattr(payment, "invoice", None) else None
         }

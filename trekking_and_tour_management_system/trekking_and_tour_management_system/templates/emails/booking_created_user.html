@@ -1,0 +1,23 @@
+<html><body>
+<h2>Booking Received</h2>
+<p>Dear {{ customer_name }},</p>
+<p>Your booking has been received and is currently <strong>PENDING</strong>.</p>
+<ul>
+  <li>Booking: #{{ booking_id }}</li>
+  <li>Package: {{ package_title }}</li>
+  <li>Dates: {{ trip_start_date }} to {{ trip_end_date }}</li>
+  <li>Guests: {{ number_of_people }}</li>
+  <li>Total: NPR {{ total_price }}</li>
+</ul>
+<p>Please complete payment to confirm your booking.</p>
+{% if payment_link %}
+<p>
+  <a href="{{ payment_link }}" style="background:#0F172A;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none;display:inline-block;">
+    Pay Now
+  </a>
+</p>
+{% else %}
+<p>Payment link will be shared shortly by support.</p>
+{% endif %}
+<p>Need help? Contact {{ support_email }}</p>
+</body></html>

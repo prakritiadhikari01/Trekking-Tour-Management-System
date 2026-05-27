@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from payments.models import Payment
+from trekking_and_tour_management_system.payments.models import Payment
 
 
 class PaymentSerializer(serializers.ModelSerializer):

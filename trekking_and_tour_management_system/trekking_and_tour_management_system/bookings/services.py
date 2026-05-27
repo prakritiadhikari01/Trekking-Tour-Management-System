@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.db import transaction
 
 from .models import Booking, CancellationRequest, Refund
-from payments.models import Payment
+from trekking_and_tour_management_system.payments.models import Payment
 
 
 def calculate_refund(booking):
@@ -35,14 +35,14 @@ def approve_cancellation(cancellation):
     booking = cancellation.booking
     payment = Payment.objects.filter(booking=booking).first()
 
-    booking.booking_status = "cancelled"
+    booking.booking_status = "CANCELLED"
     booking.cancellation_reason = cancellation.reason
     booking.cancelled_at = timezone.now()
     booking.refund_amount = cancellation.refund_amount
 
     if payment:
-        booking.payment_status = "refund_pending"
-
+        payment.status = "FAILED"
+        payment.save(update_fields=["status"])
         Refund.objects.create(
             booking=booking,
             payment=payment,

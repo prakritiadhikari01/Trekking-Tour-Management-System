@@ -7,6 +7,7 @@ from trekking_and_tour_management_system.users.api.views import UserViewSet
 
 
 router = DefaultRouter() if settings.DEBUG else SimpleRouter()
+router.include_format_suffixes = False
 
 # register ALL API viewsets here
 router.register(r"users", UserViewSet, basename="users")
