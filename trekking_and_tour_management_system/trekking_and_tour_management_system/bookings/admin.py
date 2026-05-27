@@ -11,16 +11,20 @@ class BookingAdmin(admin.ModelAdmin):
         "email",
         "phone_number",
         "number_of_people",
-        "travel_date",
+        "trip_start_date",
+        "trip_end_date",
         "booking_status",
         "total_price",
         "created_at",
+        "updated_at",
     )
 
     list_filter = (
         "booking_status",
-        "travel_date",
+        "trip_start_date",
+        "trip_end_date",
         "created_at",
+        "updated_at",
     )
 
     search_fields = (

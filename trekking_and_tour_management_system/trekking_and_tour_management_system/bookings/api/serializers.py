@@ -1,8 +1,7 @@
 from rest_framework import serializers
-from bookings.models import Booking
-from payments.models import Payment
-from django.db.models import Q
 
+from trekking_and_tour_management_system.bookings.models import Booking
+from trekking_and_tour_management_system.payments.models import Payment
 
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,7 +14,8 @@ class BookingSerializer(serializers.ModelSerializer):
             "email",
             "phone_number",
             "number_of_people",
-            "travel_date",
+            "trip_start_date",
+            "trip_end_date",
             "special_request",
             "total_price",
             "booking_status",
@@ -32,27 +32,39 @@ class BookingSerializer(serializers.ModelSerializer):
 
 class BookingHistorySerializer(serializers.ModelSerializer):
 
-    package_title = serializers.CharField(source="package.title", read_only=True)
+    package_title = serializers.CharField(
+        source="package.title",
+        read_only=True
+    )
+
+    guide_name = serializers.CharField(
+        source="assigned_guide.full_name",
+        read_only=True
+    )
 
     payment = serializers.SerializerMethodField()
 
     class Meta:
         model = Booking
+
         fields = [
             "id",
             "package_title",
-            "travel_date",
+            "trip_start_date",
+            "trip_end_date",
             "number_of_people",
             "total_price",
             "booking_status",
-            "payment_status",
+            "guide_name",
             "created_at",
             "payment",
         ]
 
     def get_payment(self, obj):
 
-        payment = Payment.objects.filter(booking=obj).first()
+        payment = Payment.objects.filter(
+            booking=obj
+        ).first()
 
         if not payment:
             return None

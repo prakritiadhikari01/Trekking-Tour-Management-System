@@ -1,7 +1,8 @@
 from django.urls import path
 
+from trekking_and_tour_management_system.payments.api.views import DownloadInvoicePDFView, InvoiceView, KhaltiInitiateView, KhaltiVerifyView
 
-from .views import DownloadInvoicePDFView, InvoiceView, KhaltiInitiateView, KhaltiVerifyView
+
 
 urlpatterns = [
     path("initiate/", KhaltiInitiateView.as_view()),

@@ -9,14 +9,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from bookings.models import Booking
-from payments.models import Payment
 
 from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.platypus import Table, TableStyle
+
+from trekking_and_tour_management_system.bookings.models import Booking
+from trekking_and_tour_management_system.payments.models import Payment
 
 class KhaltiInitiateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -140,8 +141,8 @@ class KhaltiVerifyView(APIView):
                     payment.save()
 
                     booking = payment.booking
-                    booking.payment_status = "paid" 
-                    booking.booking_status = "confirmed"  # adjust if needed
+                    booking.payment_status = "COMPLETED" 
+                    booking.booking_status = "CONFIRMED"  # adjust if needed
                     booking.save()
 
                     # generate_invoice_pdf(payment)
@@ -149,7 +150,7 @@ class KhaltiVerifyView(APIView):
                 return Response({
                     "message": "Payment successful",
                     "payment_status": payment.status,
-                    "booking_status": booking.payment_status,
+                    "booking_status": booking.booking_status,
                     "booking_id": booking.id,
                     "transaction_id": payment.transaction_id
                 })
@@ -213,7 +214,8 @@ class InvoiceView(APIView):
             "package_title": package.title,
             "package_price": str(package.price),
 
-            "travel_date": booking.travel_date,
+            "trip_start_date": booking.trip_start_date,
+            "trip_end_date": booking.trip_end_date,
             "number_of_people": booking.number_of_people,
 
             "total_amount": str(payment.amount),
@@ -314,7 +316,8 @@ class DownloadInvoicePDFView(APIView):
         p.drawString(55, height - 295, f"Name: {booking.full_name}")
         p.drawString(55, height - 313, f"Email: {booking.email}")
         p.drawString(320, height - 295, f"Phone: {booking.phone_number}")
-        p.drawString(320, height - 313, f"Travel Date: {booking.travel_date}")
+        p.drawString(320, height - 313, f"Trip Start Date: {booking.trip_start_date}")
+        p.drawString(320, height - 331, f"Trip End Date: {booking.trip_end_date}")
 
         # =====================================
         # BOOKING TABLE

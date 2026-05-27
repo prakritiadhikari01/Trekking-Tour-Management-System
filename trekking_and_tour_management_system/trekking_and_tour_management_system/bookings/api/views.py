@@ -1,10 +1,11 @@
 from rest_framework import generics, permissions
-from bookings.models import Booking
-from .serializers import BookingSerializer
+
+from trekking_and_tour_management_system.bookings.models import Booking
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
-from .serializers import BookingHistorySerializer
+from .serializers import BookingHistorySerializer, BookingSerializer
 from django.db.models import Q
+from datetime import timedelta
 
 # LIST + CREATE BOOKINGS
 class BookingListCreateAPIView(generics.ListCreateAPIView):
@@ -16,14 +17,31 @@ class BookingListCreateAPIView(generics.ListCreateAPIView):
         return Booking.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
+
         package = serializer.validated_data["package"]
-        number_of_people = serializer.validated_data.get("number_of_people", 1)
+
+        number_of_people = serializer.validated_data.get(
+            "number_of_people",
+            1
+        )
+
+        trip_start_date = serializer.validated_data[
+            "trip_start_date"
+        ]
+
+        # Auto calculate end date
+        trip_end_date = (
+            trip_start_date +
+            timedelta(days=package.duration)
+        )
 
         total_price = package.price * number_of_people
 
         serializer.save(
             user=self.request.user,
-            total_price=total_price
+            total_price=total_price,
+            trip_end_date=trip_end_date,
+            booking_status="PENDING",
         )
 
 # RETRIEVE + UPDATE + DELETE
