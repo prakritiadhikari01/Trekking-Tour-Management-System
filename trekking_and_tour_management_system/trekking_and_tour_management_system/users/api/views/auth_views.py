@@ -6,13 +6,14 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.http import urlsafe_base64_decode
 
-
-from .serializers import ChangePasswordSerializer, LoginSerializer, LogoutSerializer, RegisterSerializer
+from ..serializers import ChangePasswordSerializer, LoginSerializer, LogoutSerializer, RegisterSerializer
 from drf_spectacular.utils import extend_schema
 
 User = get_user_model()
-
+token_generator = PasswordResetTokenGenerator()
 
 class RegisterAPIView(APIView):
 
@@ -160,3 +161,29 @@ class LogoutAPIView(APIView):
         return Response({
             "message": "Logout successful"
         })
+    
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = []  # IMPORTANT: public endpoint
+
+    def post(self, request, uidb64, token):
+        password = request.data.get("password")
+
+        if not password:
+            return Response({"error": "Password required"}, status=400)
+
+        try:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = User.objects.get(pk=uid)
+
+        except Exception:
+            return Response({"error": "Invalid link"}, status=400)
+
+        if not token_generator.check_token(user, token):
+            return Response({"error": "Invalid or expired token"}, status=400)
+
+        user.set_password(password)
+        user.must_change_password = False
+        user.save()
+
+        return Response({"message": "Password set successfully"})

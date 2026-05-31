@@ -12,11 +12,6 @@ class Guide(models.Model):
     phone_number = models.CharField(max_length=20)
     experience = models.TextField()
     languages = models.CharField(max_length=255)
-
-    created_from_application = models.OneToOneField(
-        "guide_applications.GuideApplication",
-        on_delete=models.CASCADE
-    )
     
     created_at = models.DateTimeField(auto_now_add=True)
     is_verified = models.BooleanField(default=False)
