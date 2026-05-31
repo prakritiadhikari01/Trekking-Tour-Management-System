@@ -1,9 +1,10 @@
-from rest_framework import generics, permissions
-
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from django.utils import timezone
 from trekking_and_tour_management_system.bookings.models import Booking
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
-from .serializers import BookingHistorySerializer, BookingSerializer
+from .serializers import BookingHistorySerializer, BookingSerializer, BookingCancelSerializer
 from django.db.models import Q
 from datetime import timedelta
 
@@ -53,6 +54,7 @@ class BookingDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         # Ensure user can only access their own bookings
         return Booking.objects.filter(user=self.request.user)
     
+    
 class BookingHistoryView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = BookingHistorySerializer
@@ -93,3 +95,53 @@ class BookingHistoryView(ListAPIView):
             qs = qs.order_by("-created_at")  # default newest first
 
         return qs
+    
+class BookingCancelAPIView(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Booking.objects.all()
+    lookup_field = "pk"
+
+    def patch(self, request, *args, **kwargs):
+        try:
+            booking = self.get_object()
+
+            # ownership check
+            if booking.user != request.user:
+                return Response(
+                    {"detail": "Not allowed"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            # already cancelled
+            if booking.booking_status == "CANCELLED":
+                return Response(
+                    {"detail": "Already cancelled"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # update booking
+            booking.booking_status = "CANCELLED"
+            booking.cancellation_reason = request.data.get("cancellation_reason", "")
+            booking.cancelled_at = timezone.now()
+            booking.save()
+
+            return Response(
+                {
+                    "message": "Booking cancelled successfully",
+                    "booking_id": booking.id,
+                    "status": booking.booking_status
+                },
+                status=status.HTTP_200_OK
+            )
+
+        except Booking.DoesNotExist:
+            return Response(
+                {"detail": "Booking not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        except Exception as e:
+            return Response(
+                {"detail": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

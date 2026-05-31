@@ -79,6 +79,10 @@ class Booking(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True)
 
+    cancellation_reason = models.TextField(null=True, blank=True)
+
+    cancelled_at = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         ordering = ["-created_at"]
 

@@ -80,3 +80,9 @@ class BookingHistorySerializer(serializers.ModelSerializer):
                 f"/api/payments/invoices/{payment.invoice.access_token}/download/"
             ) if getattr(payment, "invoice", None) else None
         }
+    
+class BookingCancelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Booking
+        fields = ["id", "booking_status", "cancellation_reason"]
+        read_only_fields = ["id"]    

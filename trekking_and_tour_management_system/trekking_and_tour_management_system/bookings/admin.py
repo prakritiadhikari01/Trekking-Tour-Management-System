@@ -5,6 +5,7 @@ from .models import Booking
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "user",
         "package",
         "full_name",
@@ -17,6 +18,8 @@ class BookingAdmin(admin.ModelAdmin):
         "total_price",
         "created_at",
         "updated_at",
+        "cancellation_reason",
+        "cancelled_at",
     )
 
     list_filter = (
