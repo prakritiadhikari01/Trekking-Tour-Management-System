@@ -52,7 +52,8 @@ urlpatterns += [
         "api/payments/",
         include("trekking_and_tour_management_system.payments.api.urls"),
     ),
-]
+    path("api/", include("trekking_and_tour_management_system.reviews.api.urls")),
+ ]
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit
