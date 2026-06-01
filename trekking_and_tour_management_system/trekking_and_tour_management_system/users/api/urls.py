@@ -1,10 +1,10 @@
 from rest_framework.routers import DefaultRouter
 
-from trekking_and_tour_management_system.users.api.views import UserViewSet
 from django.urls import path
 
-from .auth_views import ChangePasswordAPIView, LogoutAPIView, RegisterAPIView
-from .auth_views import LoginAPIView
+from trekking_and_tour_management_system.users.api.views.auth_views import RegisterAPIView, LoginAPIView, ChangePasswordAPIView, LogoutAPIView, PasswordResetConfirmView
+from trekking_and_tour_management_system.users.api.views.views import UserViewSet
+
 
 
 router = DefaultRouter()
@@ -16,4 +16,9 @@ urlpatterns = router.urls + [
     path("login/", LoginAPIView.as_view()),
     path("change-password/", ChangePasswordAPIView.as_view()),
     path("logout/", LogoutAPIView.as_view()),
-]
+    path(
+        "password-reset-confirm/<uidb64>/<token>/",
+        PasswordResetConfirmView.as_view(),
+        name="password-reset-confirm"
+    ),]
+

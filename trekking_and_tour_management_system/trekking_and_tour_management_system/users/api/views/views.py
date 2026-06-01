@@ -8,8 +8,8 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 
 
+from trekking_and_tour_management_system.users.api.serializers import UserSerializer
 from trekking_and_tour_management_system.users.models import User
-from .serializers import UserSerializer
 
 class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
     serializer_class = UserSerializer
@@ -36,3 +36,4 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
         )
 
         return Response(serializer.data)
+

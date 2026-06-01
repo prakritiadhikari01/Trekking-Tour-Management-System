@@ -1,6 +1,6 @@
 from django.urls import path
 
-from trekking_and_tour_management_system.users.api.auth_views import LoginAPIView, RegisterAPIView
+from trekking_and_tour_management_system.users.api.views.auth_views import LoginAPIView, PasswordResetConfirmView, RegisterAPIView
 
 from .views import user_detail_view
 from .views import user_redirect_view

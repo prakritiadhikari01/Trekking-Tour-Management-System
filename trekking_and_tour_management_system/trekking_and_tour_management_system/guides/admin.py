@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from trekking_and_tour_management_system.guides.models import Guide
+from trekking_and_tour_management_system.guides.services.guide_services import create_guide_by_admin
 
 
 

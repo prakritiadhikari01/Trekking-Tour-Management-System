@@ -40,6 +40,15 @@ class Booking(models.Model):
         ),
         default="PENDING"
     )
+    guide_assigned_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    guide_responded_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
 
     full_name = models.CharField(max_length=255)
 

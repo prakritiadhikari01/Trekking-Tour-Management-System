@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter, SimpleRouter
 
 from trekking_and_tour_management_system.guide_applications.api.views import GuideApplicationViewSet
 from trekking_and_tour_management_system.packages.api.views import TrekPackageViewSet
-from trekking_and_tour_management_system.users.api.views import UserViewSet
+from trekking_and_tour_management_system.users.api.views.views import UserViewSet
 
 
 router = DefaultRouter() if settings.DEBUG else SimpleRouter()

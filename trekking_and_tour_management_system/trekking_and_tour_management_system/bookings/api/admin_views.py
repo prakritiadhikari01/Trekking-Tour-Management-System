@@ -4,8 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 
 
 
-from trekking_and_tour_management_system.bookings.guide_assignment_service import assign_guide_to_booking
 from trekking_and_tour_management_system.bookings.models import Booking
+from trekking_and_tour_management_system.bookings.services.guide_assignment_service import assign_guide_to_booking
 from trekking_and_tour_management_system.guides.models import Guide
 from trekking_and_tour_management_system.users.permissions import IsAdmin
 

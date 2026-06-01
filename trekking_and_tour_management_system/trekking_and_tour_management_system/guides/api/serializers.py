@@ -13,3 +13,9 @@ class GuideProfileSerializer(serializers.ModelSerializer):
             "verified",
         ]
 
+class GuideCreateSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    full_name = serializers.CharField()
+    phone_number = serializers.CharField()
+    experience = serializers.CharField()
+    languages = serializers.CharField()
