@@ -1,59 +1,53 @@
 from django.utils import timezone
-from datetime import datetime, timezone
-from django.conf import settings
-from django.core.mail import send_mail
-
-def calculate_refund(travel_datetime, amount):
-    """
-    Cancellation policy:
-    - >= 24 hours before trip → 100% refund
-    - < 24 hours before trip → 80% refund (20% charge as fee)
-    - After trip start → 0% refund
-    """
-
-    now = datetime.now(timezone.utc)
-
-    hours_left = (travel_datetime - now).total_seconds() / 3600
-
-    if hours_left >= 24:
-        return amount  # full refund
-
-    elif 0 < hours_left < 24:
-        return amount * 0.8  # small cancellation fee (20%)
-
-    else:
-        return 0  # trip already started or missed     # no refund
-    
-from django.utils import timezone
 from django.db import transaction
 
-from .models import Booking, CancellationRequest, Refund
-from trekking_and_tour_management_system.payments.models import Payment
+from trekking_and_tour_management_system.payments.models import Payment, Refund
+from trekking_and_tour_management_system.bookings.models import Booking
 
 
-def calculate_refund(booking):
-    """
-    Simple refund logic (customize later)
-    """
-    if booking.travel_date > timezone.now().date():
-        return float(booking.total_price) * 0.8  # 80% refund
-    return 0
+# -------------------------------
+# REFUND LOGIC (DAY BASED POLICY)
+# -------------------------------
 
+def calculate_refund_percentage(trek_date):
+
+    days_left = (trek_date - timezone.now().date()).days
+
+    if days_left >= 30:
+        return 100
+    elif days_left >= 15:
+        return 50
+    else:
+        return 0
+
+
+# -------------------------------
+# CREATE CANCELLATION REQUEST
+# -------------------------------
 
 @transaction.atomic
 def create_cancellation_request(booking, user, reason):
 
-    refund_amount = calculate_refund(booking)
+    refund_percentage = calculate_refund_percentage(
+        booking.package.start_date
+    )
+
+    refund_amount = (booking.total_amount * refund_percentage) / 100
 
     cancellation = CancellationRequest.objects.create(
         booking=booking,
         user=user,
         reason=reason,
-        refund_amount=refund_amount
+        refund_amount=refund_amount,
+        status="PENDING"
     )
 
     return cancellation
 
+
+# -------------------------------
+# APPROVE CANCELLATION (ADMIN)
+# -------------------------------
 
 @transaction.atomic
 def approve_cancellation(cancellation):
@@ -64,22 +58,31 @@ def approve_cancellation(cancellation):
     booking.booking_status = "CANCELLED"
     booking.cancellation_reason = cancellation.reason
     booking.cancelled_at = timezone.now()
-    booking.refund_amount = cancellation.refund_amount
 
+    booking.save()
+
+    # mark payment failed/closed
     if payment:
         payment.status = "FAILED"
         payment.save(update_fields=["status"])
-        Refund.objects.create(
-            booking=booking,
-            payment=payment,
-            amount=cancellation.refund_amount,
-            reason=cancellation.reason
-        )
 
-    booking.save()
+    # create refund record
+    refund = Refund.objects.create(
+        booking=booking,
+        payment=payment,
+        amount=cancellation.refund_amount,
+        status="PENDING"
+    )
+
     cancellation.status = "APPROVED"
     cancellation.save()
 
+    return refund
+
+
+# -------------------------------
+# REJECT CANCELLATION
+# -------------------------------
 
 def reject_cancellation(cancellation):
     cancellation.status = "REJECTED"

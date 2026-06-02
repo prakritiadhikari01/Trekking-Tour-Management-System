@@ -1,3 +1,4 @@
+from pytz import timezone
 import requests
 from django.conf import settings
 from django.db import transaction
@@ -8,9 +9,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from trekking_and_tour_management_system.bookings.models import Booking
-from trekking_and_tour_management_system.payments.models import Invoice, Payment
+from trekking_and_tour_management_system.payments.models import Invoice, Payment, Refund
 from trekking_and_tour_management_system.payments.services.invoice_service import generate_or_update_invoice
 from trekking_and_tour_management_system.payments.services.khalti_service import ensure_khalti_payment_link
+from trekking_and_tour_management_system.guide_applications.permissions import IsAdminUser
+#from trekking_and_tour_management_system.payments.services.refund_service import complete_refund
 
 class KhaltiInitiateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -253,3 +256,22 @@ class DownloadInvoiceByPidxView(APIView):
                 "Content-Disposition": f'attachment; filename="{invoice.invoice_id}.pdf"',
             },
         )
+    
+class CompleteRefundAPIView(APIView):
+
+    permission_classes = [IsAdminUser]
+
+    def patch(self, request, refund_id):
+
+        refund = Refund.objects.get(id=refund_id)
+
+        refund.status = "COMPLETED"
+        refund.completed_at = timezone.now()
+        refund.admin_note = request.data.get("admin_note", "")
+
+        refund.save()
+
+        return Response({
+            "message": "Refund completed",
+            "refund_id": refund.id
+        })

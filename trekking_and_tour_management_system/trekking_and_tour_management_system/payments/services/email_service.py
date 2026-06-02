@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, send_mail
 from django.template.loader import render_to_string
 
 
@@ -57,4 +57,23 @@ def send_event_emails(
         template_name=admin_template,
         context=context,
         recipients=_admin_emails(),
+    )
+
+def send_refund_request_email(refund, booking, refund_amount, refund_percentage):
+    send_mail(
+        subject="Refund Request",
+        message=f"""
+Refund Request
+
+Booking ID: {booking.id}
+Customer: {booking.user.email}
+
+Refund Amount: Rs {refund_amount}
+Refund Percentage: {refund_percentage}%
+
+Payment Method: {refund.payment_method}
+Refund Account: {refund.refund_account}
+""",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=["admin@example.com"]
     )

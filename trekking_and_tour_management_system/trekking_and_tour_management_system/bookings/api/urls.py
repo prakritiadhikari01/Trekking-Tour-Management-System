@@ -8,7 +8,7 @@ from .views import (
     BookingListCreateAPIView,
     BookingDetailAPIView,
     BookingHistoryView,
-    BookingCancelAPIView,
+    CancelBookingAPIView,
 )
 
 urlpatterns = [
@@ -18,7 +18,7 @@ urlpatterns = [
 
     path("history/", BookingHistoryView.as_view(), name="booking-history"),
 
-    path("<int:pk>/cancel/", BookingCancelAPIView.as_view(), name="booking-cancel"),
+    path("<int:pk>/cancel/", CancelBookingAPIView.as_view(), name="booking-cancel"),
 
     path(
         "<int:booking_id>/assign-guide/",
