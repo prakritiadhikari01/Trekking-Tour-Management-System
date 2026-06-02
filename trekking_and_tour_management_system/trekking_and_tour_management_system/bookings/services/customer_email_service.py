@@ -5,7 +5,7 @@ from django.conf import settings
 
 
 def send_customer_accept_email(booking):
-
+    print("Sending customer acceptance email...")
     guide = booking.assigned_guide
     info = booking.package.info
 

@@ -1,12 +1,14 @@
+from time import timezone
+
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from trekking_and_tour_management_system.bookings.services.customer_email_service import send_customer_accept_email
+from trekking_and_tour_management_system.bookings.services.guide_email_service import send_admin_notification_email
 from trekking_and_tour_management_system.guides.services.guide_services import create_guide_by_admin
 from trekking_and_tour_management_system.users.permissions import IsGuide
 from trekking_and_tour_management_system.bookings.models import Booking
-from users.permissions import IsGuide
-
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -92,10 +94,14 @@ class GuideRespondAssignmentAPIView(APIView):
             booking.guide_status = "ACCEPTED"
             booking.booking_status = "ONGOING"
 
+            booking.save()
+
+            send_customer_accept_email(booking)
+
         elif action == "reject":
             booking.guide_status = "REJECTED"
-            booking.assigned_guide = None
 
+        send_admin_notification_email(booking)
         booking.save()
 
         return Response({"status": booking.guide_status})
