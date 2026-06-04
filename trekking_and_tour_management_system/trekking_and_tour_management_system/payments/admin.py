@@ -22,7 +22,7 @@ class RefundAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "booking",
-        "refund_amount",   # ✅ FIXED
+        "refund_amount",   
         "status",
         "created_at"
     )

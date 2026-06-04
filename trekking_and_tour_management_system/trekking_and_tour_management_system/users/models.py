@@ -80,3 +80,13 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+class ContactSupport(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="support_requests")
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_resolved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.subject}"

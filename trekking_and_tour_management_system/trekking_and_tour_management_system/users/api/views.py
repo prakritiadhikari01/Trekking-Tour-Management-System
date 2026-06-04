@@ -1,4 +1,4 @@
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.decorators import action
 from rest_framework.mixins import ListModelMixin
 from rest_framework.mixins import RetrieveModelMixin
@@ -8,8 +8,9 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 
 
+from rest_framework import permissions
 from trekking_and_tour_management_system.users.models import User
-from .serializers import UserSerializer
+from .serializers import ContactSupportSerializer, UserSerializer
 
 class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
     serializer_class = UserSerializer
@@ -36,3 +37,10 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
         )
 
         return Response(serializer.data)
+
+class ContactSupportCreateView(generics.CreateAPIView):
+    serializer_class = ContactSupportSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

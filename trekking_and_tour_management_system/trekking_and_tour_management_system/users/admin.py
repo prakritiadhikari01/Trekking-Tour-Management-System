@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from .forms import UserAdminChangeForm
 from .forms import UserAdminCreationForm
-from .models import User
+from .models import ContactSupport, User
 
 
 @admin.register(User)
@@ -41,3 +41,8 @@ class UserAdmin(auth_admin.UserAdmin):
             },
         ),
     )
+
+@admin.register(ContactSupport)
+class ContactSupportAdmin(admin.ModelAdmin):
+    list_display = ("user", "subject", "created_at", "is_resolved")
+    list_filter = ("is_resolved",)

@@ -10,7 +10,7 @@ from django.views.generic import DetailView
 from django.views.generic import RedirectView
 from django.views.generic import UpdateView
 
-from trekking_and_tour_management_system.users.models import User
+from trekking_and_tour_management_system.users.models import ContactSupport, User
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -50,3 +50,14 @@ class UserRedirectView(LoginRequiredMixin, RedirectView):
 
 
 user_redirect_view = UserRedirectView.as_view()
+
+def contact_support(request):
+    if request.method == "POST":
+        subject = request.POST["subject"]
+        message = request.POST["message"]
+
+        ContactSupport.objects.create(
+            user=request.user,
+            subject=subject,
+            message=message
+        )

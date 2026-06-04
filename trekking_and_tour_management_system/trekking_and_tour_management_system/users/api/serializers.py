@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from trekking_and_tour_management_system.users.models import User
+from trekking_and_tour_management_system.users.models import ContactSupport, User
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -69,3 +69,9 @@ class ChangePasswordSerializer(serializers.Serializer):
 class LogoutSerializer(serializers.Serializer):
 
     refresh = serializers.CharField(required=True)
+
+class ContactSupportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactSupport
+        fields = ["id", "subject", "message", "created_at", "is_resolved"]
+        read_only_fields = ["id", "created_at", "is_resolved"]

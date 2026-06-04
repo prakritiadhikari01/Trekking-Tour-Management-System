@@ -107,44 +107,43 @@ class CancelBookingAPIView(APIView):
 
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, booking_id):
+    def post(self, request, pk):
 
         booking = get_object_or_404(
             Booking,
-            id=booking_id,
+            id=pk,
             user=request.user
         )
 
-        if booking.status == "CANCELLED":
+        #  FIX: use booking_status not status
+        if booking.booking_status == "CANCELLED":
             return Response({
                 "error": "Booking already cancelled"
             }, status=400)
 
         refund_percentage = calculate_refund_percentage(
-            booking.package.start_date
+            booking.trip_start_date   #  FIXED (was package.start_date)
         )
 
-        refund_amount = (
-            booking.total_amount * refund_percentage
-        ) / 100
+        #  FIX: total_price (not total_amount)
+        refund_amount = (booking.total_price * refund_percentage) / 100
 
-        booking.status = "CANCELLED"
+        #  FIX: correct field name
+        booking.booking_status = "CANCELLED"
+        booking.cancelled_at = timezone.now()
+        booking.cancellation_reason = request.data.get("reason", "")
         booking.save()
 
         refund = Refund.objects.create(
             booking=booking,
             refund_percentage=refund_percentage,
             refund_amount=refund_amount,
-            payment_method=request.data.get(
-                "payment_method"
-            ),
-            refund_account=request.data.get(
-                "refund_account"
-            )
+            payment_method=request.data.get("payment_method"),
+            refund_account=request.data.get("refund_account")
         )
 
         return Response({
             "message": "Booking cancelled successfully",
             "refund_percentage": refund_percentage,
             "refund_amount": refund_amount
-        })
+        }, status=200)
