@@ -63,9 +63,7 @@ LOCALE_PATHS = [str(BASE_DIR / "locale")]
 #     ),
 # }
 
-from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 DATABASES = {
     "default": {

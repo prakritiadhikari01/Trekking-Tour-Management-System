@@ -1,8 +1,9 @@
 from rest_framework import serializers
 from trekking_and_tour_management_system.users.models import User
 from django.contrib.auth import authenticate
-from rest_framework_simplejwt.tokens import RefreshToken
-
+from trekking_and_tour_management_system.users.services.user_service import (
+    UserService,
+)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -27,14 +28,11 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
 
-        user = User.objects.create_user(
+        return UserService.create_user(
             name=validated_data["name"],
             email=validated_data["email"],
             password=validated_data["password"],
-            role="customer"
         )
-
-        return user
     
 class LoginSerializer(serializers.Serializer):
 
