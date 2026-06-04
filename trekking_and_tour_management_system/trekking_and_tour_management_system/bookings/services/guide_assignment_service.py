@@ -3,12 +3,9 @@
 from django.utils import timezone
 
 from django.core.exceptions import ObjectDoesNotExist
-from trekking_and_tour_management_system.bookings.services.customer_email_service import (
-    send_customer_accept_email,
-)
-
-from trekking_and_tour_management_system.bookings.services.guide_email_service import (
-    send_admin_notification_email,
+from trekking_and_tour_management_system.bookings.tasks import (
+    send_customer_accept_email_task,
+    send_admin_notification_email_task,
 )
 from trekking_and_tour_management_system.bookings.selectors.booking_selectors import (
     get_booking_by_id,
@@ -82,11 +79,11 @@ class GuideAssignmentService:
         booking.save()
 
         if action == "accept":
-            send_customer_accept_email(
+            send_customer_accept_email_task.delay(
                 booking
             )
 
-        send_admin_notification_email(
+        send_admin_notification_email_task.delay(
             booking
         )
 
