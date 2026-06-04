@@ -3,6 +3,7 @@
 from django.utils import timezone
 
 
+
 def assign_guide_to_booking(booking, guide):
 
     booking.assigned_guide = guide
