@@ -109,13 +109,15 @@ class KhaltiVerifyView(APIView):
                     booking = payment.booking
                     booking.booking_status = "CONFIRMED"
                     booking.save(update_fields=["booking_status", "updated_at"])
+                invoice = Invoice.objects.filter(payment=payment).first()
 
                 return Response({
                     "message": "Payment successful",
                     "payment_status": payment.status,
                     "booking_status": booking.booking_status,
                     "booking_id": booking.id,
-                    "transaction_id": payment.transaction_id
+                    "transaction_id": payment.transaction_id,
+                    "invoice_access_token": invoice.access_token if invoice else None
                 })
 
             booking = payment.booking
@@ -127,7 +129,8 @@ class KhaltiVerifyView(APIView):
                 "payment_status": payment.status,
                 "booking_status": booking.booking_status,
                 "status": data.get("status"),
-                "data": data
+                "data": data,
+                
             }, status=400)
 
         except Payment.DoesNotExist:
