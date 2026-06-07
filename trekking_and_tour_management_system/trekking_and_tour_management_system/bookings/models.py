@@ -1,3 +1,4 @@
+# bookings/models.py
 from django.conf import settings
 from django.db import models
 
@@ -8,7 +9,6 @@ class Booking(models.Model):
         ("PENDING", "Pending"),
         ("CONFIRMED", "Confirmed"),
         ("CANCELLED", "Cancelled"),
-        ("ONGOING", "Ongoing"),
         ("COMPLETED", "Completed"),
     )
 
@@ -23,7 +23,14 @@ class Booking(models.Model):
         on_delete=models.CASCADE,
         related_name="bookings"
     )
-
+    need_guide = models.BooleanField(
+        default=False
+    )
+    guide_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
     assigned_guide = models.ForeignKey(
         "guides.Guide",
         on_delete=models.SET_NULL,
@@ -34,11 +41,13 @@ class Booking(models.Model):
     guide_status = models.CharField(
         max_length=20,
         choices=(
+            ("NOT_ASSIGNED", "Not Assigned"),
             ("PENDING", "Pending"),
             ("ACCEPTED", "Accepted"),
             ("REJECTED", "Rejected"),
+            ("EXPIRED", "Expired"),
         ),
-        default="PENDING"
+        default="NOT_ASSIGNED"
     )
     guide_assigned_at = models.DateTimeField(
         null=True,
@@ -48,6 +57,10 @@ class Booking(models.Model):
     guide_responded_at = models.DateTimeField(
         null=True,
         blank=True
+    )
+    guide_response_deadline = models.DateTimeField(
+        null=True,
+        blank=True,
     )
 
     full_name = models.CharField(max_length=255)
@@ -69,7 +82,8 @@ class Booking(models.Model):
 
     total_price = models.DecimalField(
         max_digits=10,
-        decimal_places=2
+        decimal_places=2,
+        default=0
     )
 
     booking_status = models.CharField(

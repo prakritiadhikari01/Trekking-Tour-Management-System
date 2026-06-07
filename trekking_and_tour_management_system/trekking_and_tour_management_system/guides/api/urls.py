@@ -1,5 +1,7 @@
+# guides/api/urls.py
 from django.urls import path
 
+from trekking_and_tour_management_system.guides.api.admin_views import AvailableGuidesAPIView
 from trekking_and_tour_management_system.guides.api.views import (
     CreateGuideAPIView,
     GuideAssignedToursAPIView,
@@ -22,5 +24,9 @@ urlpatterns = [
 path(
     "assignments/<int:booking_id>/respond/",
     GuideRespondAssignmentAPIView.as_view(),
+),
+path(
+    "available-guides/<int:booking_id>/",
+    AvailableGuidesAPIView.as_view(),
 ),
 ]

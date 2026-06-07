@@ -1,8 +1,6 @@
 #guides/selectors/dashboard_selectors.py
-from trekking_and_tour_management_system.bookings.selectors.booking_selectors import (
-    get_guide_assigned_bookings,
-)
 
+from trekking_and_tour_management_system.guides.selectors.guide_assignment_selectors import get_guide_assigned_bookings
 
 def get_guide_dashboard_data(user):
     bookings = get_guide_assigned_bookings(user)

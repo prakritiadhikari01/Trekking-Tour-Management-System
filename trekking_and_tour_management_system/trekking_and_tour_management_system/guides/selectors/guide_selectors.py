@@ -1,3 +1,4 @@
+# guides/selectors/guide_selectors.py
 from trekking_and_tour_management_system.guides.models import Guide
 
 

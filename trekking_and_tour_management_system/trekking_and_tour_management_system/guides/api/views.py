@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from trekking_and_tour_management_system.bookings.services.guide_assignment_service import GuideAssignmentService
+from trekking_and_tour_management_system.guides.services.guide_assignment_service import GuideAssignmentService
 from trekking_and_tour_management_system.guides.selectors.dashboard_selectors import get_guide_dashboard_data
 from trekking_and_tour_management_system.guides.services.guide_services import create_guide_by_admin
 from trekking_and_tour_management_system.users.permissions import IsGuide

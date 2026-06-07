@@ -1,3 +1,4 @@
+#guides/api/serializers.py
 from rest_framework import serializers
 
 from trekking_and_tour_management_system.guides.models import Guide

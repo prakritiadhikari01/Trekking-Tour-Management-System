@@ -32,6 +32,7 @@ class TrekPackageSerializer(serializers.ModelSerializer):
             "destination",
             "duration",
             "price",
+            "guide_price",
             "difficulty",
             "description",
             "image",

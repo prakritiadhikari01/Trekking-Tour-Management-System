@@ -8,7 +8,8 @@ from trekking_and_tour_management_system.packages.api.serializers import (
 
 from trekking_and_tour_management_system.packages.selectors.package_selectors import (
     get_available_packages,
-    search_packages,
+    search_all_packages,
+    search_available_packages,
     get_all_packages,
 )
 
@@ -21,7 +22,6 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 class TrekPackageViewSet(viewsets.ModelViewSet):
 
-    queryset = TrekPackage.objects.all()
     serializer_class = TrekPackageSerializer
     parser_classes = [MultiPartParser, FormParser]
     def get_queryset(self):
@@ -29,14 +29,26 @@ class TrekPackageViewSet(viewsets.ModelViewSet):
         user = self.request.user
         query = self.request.query_params.get("q")
 
-        # admin sees all
-        if user.is_authenticated and user.role == "admin":
-            queryset = get_all_packages()
-        else:
-            queryset = get_available_packages()
+        is_admin = (
+            user.is_authenticated
+            and user.role == "admin"
+        )
 
-        if query:
-            queryset = search_packages(query)
+        if is_admin:
+
+            queryset = (
+                search_all_packages(query)
+                if query
+                else get_all_packages()
+            )
+
+        else:
+
+            queryset = (
+                search_available_packages(query)
+                if query
+                else get_available_packages()
+            )
 
         return queryset
 
