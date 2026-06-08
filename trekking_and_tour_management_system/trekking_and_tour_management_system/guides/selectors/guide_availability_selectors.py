@@ -1,37 +1,35 @@
 #app/guides/selectors/guide_availability_selectors.py
-from trekking_and_tour_management_system.guides.models import Guide
 from trekking_and_tour_management_system.bookings.models import Booking
+from trekking_and_tour_management_system.guides.models import Guide
 
 
-def get_available_guides_for_booking(booking):
-    busy_guide_ids = []
-
-    active_bookings = Booking.objects.filter(
-        assigned_guide__isnull=False,
-        guide_status__in=[
-            "PENDING",
-            "ACCEPTED",
-        ],
-    ).select_related("assigned_guide")
-
-    for assigned_booking in active_bookings:
-
-        overlap = (
-            booking.trip_start_date <= assigned_booking.trip_end_date
-            and booking.trip_end_date >= assigned_booking.trip_start_date
+def get_available_guides_for_booking(
+    booking,
+):
+    busy_guide_ids = (
+        Booking.objects.filter(
+            assigned_guide__isnull=False,
+            guide_status__in=[
+                "PENDING",
+                "ACCEPTED",
+            ],
+            trip_start_date__lte=booking.trip_end_date,
+            trip_end_date__gte=booking.trip_start_date,
         )
-
-        if overlap:
-            busy_guide_ids.append(
-                assigned_booking.assigned_guide_id
-            )
+        .values_list(
+            "assigned_guide_id",
+            flat=True,
+        )
+    )
 
     return (
         Guide.objects.filter(
             is_verified=True,
         )
         .exclude(
-            id__in=busy_guide_ids
+            id__in=busy_guide_ids,
         )
-        .select_related("user")
+        .select_related(
+            "user"
+        )
     )

@@ -2,6 +2,7 @@
 from django.urls import path
 
 from trekking_and_tour_management_system.guides.api.admin_views import AvailableGuidesAPIView
+from trekking_and_tour_management_system.guides.api.admin_views_statistics import GuideStatisticsAPIView
 from trekking_and_tour_management_system.guides.api.views import (
     CreateGuideAPIView,
     GuideAssignedToursAPIView,
@@ -29,4 +30,8 @@ path(
     "available-guides/<int:booking_id>/",
     AvailableGuidesAPIView.as_view(),
 ),
+path(
+    "statistics/<int:guide_id>/",
+    GuideStatisticsAPIView.as_view(),
+)
 ]

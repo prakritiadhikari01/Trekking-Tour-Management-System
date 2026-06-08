@@ -1,6 +1,7 @@
 from django.urls import path
 
 from trekking_and_tour_management_system.guides.api.admin_views import AssignGuideAPIView
+from trekking_and_tour_management_system.guides.api.admin_views_calendar import GuideCalendarAPIView
 
 
 
@@ -25,4 +26,8 @@ urlpatterns = [
         AssignGuideAPIView.as_view(),
         name="assign-guide",
     ),
+    path(
+    "calendar/<int:guide_id>/",
+        GuideCalendarAPIView.as_view(),
+    )
 ]
