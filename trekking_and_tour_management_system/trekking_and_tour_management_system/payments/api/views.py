@@ -108,9 +108,9 @@ class KhaltiVerifyView(APIView):
                     payment.save(update_fields=["status", "transaction_id"])
                     booking = payment.booking
                     booking.booking_status = "CONFIRMED"
-                    booking.save(update_fields=["booking_status", "updated_at"])
+                    booking.save(update_fields=["booking_status", "updated_at"]) 
                 invoice = Invoice.objects.filter(payment=payment).first()
-
+            
                 return Response({
                     "message": "Payment successful",
                     "payment_status": payment.status,

@@ -1,3 +1,4 @@
+from rest_framework.exceptions import ValidationError
 from rest_framework import viewsets, permissions
 from ..models import Review
 from .serializers import ReviewSerializer
@@ -14,4 +15,19 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return [permissions.IsAuthenticated()]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        user = self.request.user  
+
+        booking = serializer.validated_data["booking"]
+
+        # check ownership
+        if booking.user != user:
+            raise ValidationError("This booking does not belong to you.")
+
+        # prevent duplicate review
+        if hasattr(booking, "review"):
+            raise ValidationError("You already reviewed this booking.")
+
+        serializer.save(
+            user=user,
+            package=booking.package
+        )
