@@ -1,16 +1,16 @@
 from django.urls import path
 from reports.api.views import (
-    BookingReportView,
     CustomerReportAPIView,
-    DashboardAnalyticsView,
     PackageReportAPIView,
-    RevenueReportView
+    RevenueReportAPIView,
+    DashboardAPIView,
+    BookingReportAPIView,
 )
 
 urlpatterns = [
-    path("bookings/", BookingReportView.as_view(), name="booking-report"),
-    path("revenue/", RevenueReportView.as_view(), name="revenue-report"),
-    path("dashboard/", DashboardAnalyticsView.as_view(), name="dashboard-analytics"),
-    path("customers/",CustomerReportAPIView.as_view(),name="customer-report"),
-    path("packages/",PackageReportAPIView.as_view(),name="package-report"),
+    path("customers/", CustomerReportAPIView.as_view()),
+    path("packages/", PackageReportAPIView.as_view()),
+    path("revenue/", RevenueReportAPIView.as_view()),
+    path("dashboard/", DashboardAPIView.as_view()),
+    path("bookings/", BookingReportAPIView.as_view()),
 ]

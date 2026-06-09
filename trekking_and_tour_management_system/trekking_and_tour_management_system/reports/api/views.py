@@ -1,70 +1,35 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from reports.services.customer_service import CustomerReportService
+from reports.services.package_service import PackageReportService
+from reports.services.revenue_service import RevenueReportService
+from reports.services.dashboard_service import DashboardService
+from reports.selectors.booking_selector import get_total_bookings, get_revenue
 
-from reports.services.booking_report_service import (
-    generate_booking_report,
-    generate_revenue_report
-)
-from trekking_and_tour_management_system.guide_applications.permissions import IsAdminUser
-from trekking_and_tour_management_system.reports.services.dashboard_service import get_dashboard_data
-
-from reports.services.customer_report_services import generate_customer_report
-from trekking_and_tour_management_system.reports.services.package_report_service import generate_package_report
-
-class DashboardAnalyticsView(APIView):
-    permission_classes = [IsAdminUser]
+class DashboardAPIView(APIView):
 
     def get(self, request):
-        return Response(
-            get_dashboard_data()
-        )
+        service = DashboardService()
+        return Response(service.build())
     
-class BookingReportView(APIView):
+class BookingReportAPIView(APIView):
 
     def get(self, request):
-        start_date = request.GET.get("start_date")
-        end_date = request.GET.get("end_date")
-        status = request.GET.get("status")
-
-        data = generate_booking_report(start_date, end_date, status)
-
         return Response({
-            "success": True,
-            "data": data
-        })
-
-
-class RevenueReportView(APIView):
-
-    def get(self, request):
-        start_date = request.GET.get("start_date")
-        end_date = request.GET.get("end_date")
-
-        data = generate_revenue_report(start_date, end_date)
-
-        return Response({
-            "success": True,
-            "data": data
-        })
-    
-class CustomerReportAPIView(APIView):
-    permission_classes = [IsAdminUser]
-
-    def get(self, request):
-        data = generate_customer_report()
-
-        return Response({
-            "success": True,
-            "data": data
-        })
-    
-class PackageReportAPIView(APIView):
-    permission_classes = [IsAdminUser]
-
-    def get(self, request):
-        data = generate_package_report()
-
-        return Response({
-            "success": True,
-            "data": data
+            "total_bookings": get_total_bookings(),
+            "revenue": get_revenue()["total"] or 0,
         })    
+class CustomerReportAPIView(APIView):
+
+    def get(self, request):
+        service = CustomerReportService()
+        return Response(service.build())    
+class PackageReportAPIView(APIView):
+
+    def get(self, request):
+        return Response(PackageReportService().build())
+
+class RevenueReportAPIView(APIView):
+
+    def get(self, request):
+        return Response(RevenueReportService().build())        

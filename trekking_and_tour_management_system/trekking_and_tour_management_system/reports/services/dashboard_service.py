@@ -1,23 +1,27 @@
-from reports.selectors.dashboard_selector import *
+from reports.selectors.booking_selector import (
+    get_total_bookings,
+    get_revenue,
+    get_booking_by_user,
+)
+
+from reports.selectors.customer_selector import (
+    get_total_customers,
+    get_active_customers,
+)
+
+from reports.selectors.package_selector import get_top_packages
 
 
-def get_dashboard_data():
-    revenue = get_total_revenue()
+class DashboardService:
 
-    return {
-        "bookings": {
-            "total": get_total_bookings(),
-            "confirmed": get_confirmed_bookings(),
-            "pending": get_pending_bookings(),
-            "cancelled": get_cancelled_bookings(),
-        },
-        "revenue": {
-            "total": revenue["revenue"] or 0
-        },
-        "customers": {
-            "total": get_total_customers()
-        },
-        "packages": {
-            "total": get_total_packages()
+    def build(self):
+        revenue_data = get_revenue()
+
+        return {
+            "total_customers": get_total_customers(),
+            "active_customers": get_active_customers(),
+            "total_bookings": get_total_bookings(),
+            "total_revenue": revenue_data["total"] or 0,
+            "top_customers": list(get_booking_by_user())[:5],
+            "top_packages": list(get_top_packages())[:5],
         }
-    }
