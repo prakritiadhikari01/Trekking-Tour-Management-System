@@ -1,7 +1,12 @@
-# bookings/admin.py
 from django.contrib import admin
+from django.core.exceptions import ValidationError
 
-from .models import Booking
+from trekking_and_tour_management_system.bookings.models import Booking
+from trekking_and_tour_management_system.guides.models import Guide
+from trekking_and_tour_management_system.guides.selectors.guide_availability_selectors import get_available_guides_for_booking
+from trekking_and_tour_management_system.guides.services.guide_assignment_service import (
+    GuideAssignmentService,
+)
 
 
 @admin.register(Booking)
@@ -52,11 +57,9 @@ class BookingAdmin(admin.ModelAdmin):
                     "total_price",
                     "number_of_people",
                     "need_guide",
-
                 )
             },
         ),
-
         (
             "Customer Information",
             {
@@ -67,7 +70,6 @@ class BookingAdmin(admin.ModelAdmin):
                 )
             },
         ),
-
         (
             "Trip Information",
             {
@@ -78,7 +80,6 @@ class BookingAdmin(admin.ModelAdmin):
                 )
             },
         ),
-
         (
             "Guide Information",
             {
@@ -91,7 +92,6 @@ class BookingAdmin(admin.ModelAdmin):
                 )
             },
         ),
-
         (
             "Cancellation Information",
             {
@@ -101,7 +101,6 @@ class BookingAdmin(admin.ModelAdmin):
                 )
             },
         ),
-
         (
             "System Information",
             {
@@ -112,3 +111,91 @@ class BookingAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    def formfield_for_foreignkey(
+        self,
+        db_field,
+        request,
+        **kwargs,
+    ):
+        """
+        Show only available guides when editing a booking.
+        Uses the same availability logic as the API.
+        """
+
+        if db_field.name == "assigned_guide":
+
+            booking_id = request.resolver_match.kwargs.get(
+                "object_id"
+            )
+
+            if booking_id:
+
+                try:
+                    kwargs["queryset"] = (
+                        get_available_guides_for_booking(
+                            booking_id=int(booking_id)
+                        )
+                    )
+
+                except Exception:
+                    kwargs["queryset"] = Guide.objects.none()
+
+            else:
+                kwargs["queryset"] = Guide.objects.none()
+
+        return super().formfield_for_foreignkey(
+            db_field,
+            request,
+            **kwargs,
+        )
+
+    def save_model(
+        self,
+        request,
+        obj,
+        form,
+        change,
+    ):
+        """
+        Route guide assignment through
+        GuideAssignmentService so admin
+        uses the exact same business rules
+        as the API.
+        """
+
+        if change:
+
+            old_obj = Booking.objects.get(
+                pk=obj.pk
+            )
+
+            old_guide = old_obj.assigned_guide
+            new_guide = obj.assigned_guide
+
+            if (
+                new_guide
+                and old_guide != new_guide
+            ):
+
+                try:
+
+                    GuideAssignmentService.assign_guide(
+                        booking_id=obj.id,
+                        guide_id=new_guide.id,
+                    )
+
+                    return
+
+                except ValueError as e:
+
+                    raise ValidationError(
+                        str(e)
+                    )
+
+        super().save_model(
+            request,
+            obj,
+            form,
+            change,
+        )

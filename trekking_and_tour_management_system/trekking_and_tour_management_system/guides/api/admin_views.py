@@ -1,4 +1,6 @@
 # guides/api/admin_views.py
+from rest_framework import status
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -27,16 +29,22 @@ class AssignGuideAPIView(APIView):
         guide_id = request.data.get(
             "guide_id"
         )
+        try:
+            GuideAssignmentService.assign_guide(
+                booking_id=booking_id,
+                guide_id=guide_id,
+            )
 
-        GuideAssignmentService.assign_guide(
-            booking_id=booking_id,
-            guide_id=guide_id,
-        )
-
-        return Response(
-            {
-                "message": "Guide assigned successfully."
-            }
+            return Response(
+                {
+                    "message": "Guide assigned successfully."
+                }
+            )
+        except Exception as e:
+            return Response({
+                "error": str(e)
+            },
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
 class AvailableGuidesAPIView(APIView):

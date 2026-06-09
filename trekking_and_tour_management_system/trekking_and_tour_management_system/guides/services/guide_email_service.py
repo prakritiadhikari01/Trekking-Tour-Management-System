@@ -50,6 +50,7 @@ Login and accept/reject the assignment.
 
 def send_guide_account_ready_email(user, reset_link):
     print(f"Sending guide account ready email to {user.email}...")
+    print(f"Reset link: {reset_link}")
     send_mail(
         subject="Your Guide Account is Ready",
         message=f"""Hi {user.name},

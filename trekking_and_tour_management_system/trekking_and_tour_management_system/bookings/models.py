@@ -73,7 +73,7 @@ class Booking(models.Model):
 
     trip_start_date = models.DateField()
 
-    trip_end_date = models.DateField()
+    trip_end_date = models.DateField(null=True, blank=True)
 
     special_request = models.TextField(
         blank=True,

@@ -49,5 +49,4 @@ class GuideCalendarAPIView(APIView):
                 }
                 for booking in bookings
             ]
-            
         )

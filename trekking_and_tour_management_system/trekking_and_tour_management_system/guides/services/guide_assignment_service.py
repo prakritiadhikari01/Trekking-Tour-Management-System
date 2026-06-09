@@ -1,10 +1,7 @@
-# guides/services/guide_assignment_service.py
-
 from django.utils import timezone
 
 from django.core.exceptions import ObjectDoesNotExist
 
-from trekking_and_tour_management_system.bookings.models import Booking
 from trekking_and_tour_management_system.guides.selectors.guide_assignment_selectors import (
     get_booking_for_assignment,
     get_guide_booking,
@@ -13,10 +10,19 @@ from trekking_and_tour_management_system.guides.selectors.guide_assignment_selec
 from trekking_and_tour_management_system.guides.selectors.guide_selectors import (
     get_guide_by_id,
 )
-from trekking_and_tour_management_system.guides.tasks import send_admin_notification_email_task, send_customer_accept_email_task
+
+from trekking_and_tour_management_system.guides.selectors.guide_conflict_selectors import (
+    has_guide_date_conflict,
+)
+
+from trekking_and_tour_management_system.guides.tasks import (
+    send_admin_notification_email_task,
+    send_customer_accept_email_task,
+)
 
 
 class GuideAssignmentService:
+
     @staticmethod
     def assign_guide(
         booking_id,
@@ -26,30 +32,30 @@ class GuideAssignmentService:
             booking_id
         )
 
+        if not booking.need_guide:
+            raise ValueError(
+                "This booking does not require a guide."
+            )
+
         guide = get_guide_by_id(
             guide_id
         )
 
-        busy_booking_exists = (
-            Booking.objects.filter(
-                assigned_guide=guide,
-                guide_status__in=[
-                    "PENDING",
-                    "ACCEPTED",
-                ],
-                trip_start_date__lte=booking.trip_end_date,
-                trip_end_date__gte=booking.trip_start_date,
-            )
-            .exists()
+        conflict = has_guide_date_conflict(
+            guide=guide,
+            start_date=booking.trip_start_date,
+            end_date=booking.trip_end_date,
         )
 
-        if busy_booking_exists:
+        if conflict:
             raise ValueError(
-                "Guide is not available for selected dates."
+                "Guide is already assigned during these dates."
             )
 
         booking.assigned_guide = guide
+
         booking.guide_status = "PENDING"
+
         booking.guide_assigned_at = timezone.now()
 
         booking.guide_response_deadline = (
@@ -57,10 +63,17 @@ class GuideAssignmentService:
             + timezone.timedelta(hours=24)
         )
 
-        booking.save()
+        booking.save(
+            update_fields=[
+                "assigned_guide",
+                "guide_status",
+                "guide_assigned_at",
+                "guide_response_deadline",
+            ]
+        )
 
         return booking
-        
+
     @staticmethod
     def respond_to_assignment(
         booking_id,
@@ -78,31 +91,43 @@ class GuideAssignmentService:
         except ObjectDoesNotExist:
 
             raise ValueError(
-                "Booking not found"
+                "Booking not found."
             )
 
         if booking.guide_status == "EXPIRED":
+
             raise ValueError(
-                "Assignment expired"
+                "Assignment expired."
             )
 
         if action not in [
             "accept",
             "reject",
         ]:
+
             raise ValueError(
-                "Invalid action"
+                "Invalid action."
             )
+
+        booking.guide_responded_at = (
+            timezone.now()
+        )
+
+        booking.guide_response_deadline = (
+            None
+        )
 
         if action == "accept":
 
-            booking.guide_status = "ACCEPTED"
-            booking.guide_response_deadline = None
+            booking.guide_status = (
+                "ACCEPTED"
+            )
 
         else:
 
-            booking.guide_status = "REJECTED"
-            booking.guide_response_deadline = None
+            booking.guide_status = (
+                "REJECTED"
+            )
 
         booking.save()
 
