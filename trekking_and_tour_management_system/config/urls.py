@@ -53,6 +53,7 @@ urlpatterns += [
         include("trekking_and_tour_management_system.payments.api.urls"),
     ),
     path("api/", include("trekking_and_tour_management_system.reviews.api.urls")),
+    path("api/reports/", include("trekking_and_tour_management_system.reports.api.urls")),
  ]
 
 if settings.DEBUG:
