@@ -45,7 +45,11 @@ class TrekPackage(models.Model):
         max_digits=10,
         decimal_places=2
     )
-
+    guide_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
     difficulty = models.CharField(
         max_length=20,
         choices=DIFFICULTY_CHOICES,
@@ -78,3 +82,18 @@ class TrekPackage(models.Model):
 
     def __str__(self):
         return self.title
+    
+class TrekPackageInfo(models.Model):
+    package = models.OneToOneField(
+        "packages.TrekPackage",
+        on_delete=models.CASCADE,
+        related_name="info"
+    )
+
+    meeting_point = models.TextField()
+    required_items = models.TextField()
+    emergency_contact = models.CharField(max_length=100)
+    guide_notes = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.package.title

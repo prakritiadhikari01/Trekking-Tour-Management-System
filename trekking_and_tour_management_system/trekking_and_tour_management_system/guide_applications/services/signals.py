@@ -46,8 +46,11 @@ def delete_related_user(sender, instance, **kwargs):
     if instance.user:
         instance.user.delete()
 
-    if instance.created_from_application:
+    if hasattr(instance, "created_from_application"):
         application = instance.created_from_application
         application.account_deleted = True
         application.deleted_at = timezone.now()
         application.save()
+    else:
+        application = None
+        

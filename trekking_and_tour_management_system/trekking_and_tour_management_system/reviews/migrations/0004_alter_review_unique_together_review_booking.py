@@ -7,7 +7,6 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bookings', '0005_booking_cancellation_reason_booking_cancelled_at'),
         ('reviews', '0003_alter_review_options_review_updated_at_and_more'),
     ]
 

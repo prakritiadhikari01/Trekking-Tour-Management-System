@@ -1,20 +1,42 @@
-def send_customer_trip_details(booking):
+#app/guides/services/guide_services.py
+from trekking_and_tour_management_system.guides.models import Guide
+from django.db import transaction
 
-    guide = booking.assigned_guide
+from django.contrib.auth import get_user_model
 
-    payload = {
-        "to": booking.email,
-        "subject": "Your Trip Details",
-        "message": {
-            "packing_list": [
-                "Trekking shoes",
-                "Warm jacket",
-                "Water bottle"
-            ],
-            "meeting_point": "Thamel Tourism Office - 7:00 AM",
-            "guide_name": guide.full_name,
-            "guide_phone": guide.phone_number,
-        }
-    }
+User = get_user_model()
 
-    print("EMAIL SENT:", payload)
+@transaction.atomic
+def create_guide_by_admin(
+    email,
+    full_name,
+    phone_number,
+    experience,
+    languages,
+):
+    if User.objects.filter(email=email).exists():
+        raise ValueError("User already exists")
+
+
+    user = User.objects.create_user(
+        email=email,
+        password=None,
+        name=full_name,
+        role="guide",
+        must_change_password=True,
+    )
+
+    user.set_unusable_password()
+    user.save(update_fields=["password"])
+
+    guide = Guide.objects.create(
+        user=user,
+        full_name=full_name,
+        phone_number=phone_number,
+        experience=experience,
+        languages=languages,
+        is_verified=True,
+    )
+
+    return guide
+

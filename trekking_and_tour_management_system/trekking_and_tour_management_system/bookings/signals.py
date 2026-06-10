@@ -2,6 +2,7 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 from trekking_and_tour_management_system.bookings.models import Booking
+from trekking_and_tour_management_system.guides.services.guide_email_service import send_guide_assignment_email
 from trekking_and_tour_management_system.payments.models import Payment
 from trekking_and_tour_management_system.payments.tasks import (
     send_booking_cancelled_email_task,
@@ -43,3 +44,7 @@ def booking_events(sender, instance: Booking, created: bool, **kwargs):
                 status="FAILED",
             )
         send_booking_cancelled_email_task.delay(payment.id)
+    
+    previous_guide = getattr(instance, "_previous_guide_id", None)
+    if instance.assigned_guide and previous_guide != instance.assigned_guide_id:
+        send_guide_assignment_email(instance)

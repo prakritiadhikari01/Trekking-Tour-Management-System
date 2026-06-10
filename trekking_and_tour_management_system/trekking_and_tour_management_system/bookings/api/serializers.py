@@ -14,6 +14,7 @@ class BookingSerializer(serializers.ModelSerializer):
             "email",
             "phone_number",
             "number_of_people",
+            "need_guide",
             "trip_start_date",
             "trip_end_date",
             "special_request",

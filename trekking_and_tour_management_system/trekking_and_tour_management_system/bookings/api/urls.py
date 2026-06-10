@@ -1,8 +1,8 @@
 from django.urls import path
 
-from trekking_and_tour_management_system.bookings.api.admin_views import (
-    AssignGuideAPIView,
-)
+from trekking_and_tour_management_system.guides.api.admin_views import AssignGuideAPIView
+
+
 
 from .views import (
     BookingListCreateAPIView,

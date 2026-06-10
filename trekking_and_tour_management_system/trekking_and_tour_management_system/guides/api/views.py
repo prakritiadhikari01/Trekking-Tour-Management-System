@@ -1,14 +1,46 @@
+#guides/api/views.py
+from time import timezone
+
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from trekking_and_tour_management_system.guides.services.guide_services import send_customer_trip_details
+from trekking_and_tour_management_system.guides.services.guide_assignment_service import GuideAssignmentService
+from trekking_and_tour_management_system.guides.selectors.dashboard_selectors import get_guide_dashboard_data
+from trekking_and_tour_management_system.guides.services.guide_services import create_guide_by_admin
 from trekking_and_tour_management_system.users.permissions import IsGuide
 from trekking_and_tour_management_system.bookings.models import Booking
-from trekking_and_tour_management_system.bookings.guide_assignment_service import assign_guide_to_booking
+
+from rest_framework import request, status
+from rest_framework.permissions import IsAdminUser
+
+from .serializers import GuideCreateSerializer
 
 
+class CreateGuideAPIView(APIView):
+    permission_classes = [IsAdminUser]
 
+    def post(self, request):
+
+        serializer = GuideCreateSerializer(
+            data=request.data
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        create_guide_by_admin(
+            **serializer.validated_data
+        )
+
+        return Response(
+            {
+                "message": "Guide created successfully"
+            },
+            status=status.HTTP_201_CREATED
+        )
+    
 class GuideDashboardAPIView(APIView):
 
     permission_classes = [
@@ -18,36 +50,25 @@ class GuideDashboardAPIView(APIView):
 
     def get(self, request):
 
-        return Response({
-            "message": "Welcome Guide",
-            "assigned_tours": [],
-        
-        })
+        return Response(
+            get_guide_dashboard_data(
+                request.user
+            )
+        )
     
 
 class GuideAssignedToursAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsGuide]
-
+    permission_classes = [
+        IsAuthenticated,
+        IsGuide
+    ]
     def get(self, request):
 
-        bookings = Booking.objects.filter(
-            assigned_guide__user=request.user
-        ).select_related("package", "user")
-
-        data = []
-
-        for b in bookings:
-            data.append({
-                "booking_id": b.id,
-                "customer": b.full_name,
-                "package": b.package.title,
-                "start": b.trip_start_date,
-                "end": b.trip_end_date,
-                "status": b.guide_status,
-                "booking_status": b.booking_status,
-            })
-
-        return Response(data)
+        return Response(
+            get_guide_dashboard_data(
+                request.user
+            )
+        )
     
 class GuideRespondAssignmentAPIView(APIView):
     permission_classes = [IsAuthenticated, IsGuide]
@@ -56,22 +77,19 @@ class GuideRespondAssignmentAPIView(APIView):
 
         action = request.data.get("action")
 
-        booking = Booking.objects.get(
-            id=booking_id,
-            assigned_guide__user=request.user
-        )
+        try:
 
-        if action == "accept":
-            booking.guide_status = "ACCEPTED"
-            booking.booking_status = "ONGOING"
+            booking = GuideAssignmentService.respond_to_assignment(
+                booking_id=booking_id,
+                guide_user=request.user,
+                action=action,
+            )
 
-            # trigger celery/email here
-            send_customer_trip_details(booking)
+        except ValueError as e:
 
-        elif action == "reject":
-            booking.guide_status = "REJECTED"
-            booking.assigned_guide = None
-
-        booking.save()
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         return Response({"status": booking.guide_status})
