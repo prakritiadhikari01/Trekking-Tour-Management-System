@@ -7,6 +7,7 @@ import os
 import warnings
 import environ
 from dotenv import load_dotenv
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # trekking_and_tour_management_system/
@@ -63,9 +64,7 @@ LOCALE_PATHS = [str(BASE_DIR / "locale")]
 #     ),
 # }
 
-from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 DATABASES = {
     "default": {
@@ -366,6 +365,18 @@ CELERY_TASK_SEND_SENT_EVENT = True
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#worker-hijack-root-logger
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+
+CELERY_BEAT_SCHEDULE = {
+    "expire-guide-assignments": {
+        "task": (
+            "trekking_and_tour_management_system.guides.tasks."
+            "expire_pending_guide_assignments"
+        ),
+        "schedule": crontab(minute="*/15"),
+    },
+}
+
 # django-allauth
 # ------------------------------------------------------------------------------
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", True)

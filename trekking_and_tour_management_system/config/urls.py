@@ -41,7 +41,7 @@ urlpatterns += [
     path( "api/docs/",SpectacularSwaggerView.as_view(url_name="api-schema"), name="api-docs"),
     path(
         "bookings/",
-        include("trekking_and_tour_management_system.bookings.urls"),
+        include("trekking_and_tour_management_system.bookings.api.urls"),
         name="bookings",
     ),
     path(

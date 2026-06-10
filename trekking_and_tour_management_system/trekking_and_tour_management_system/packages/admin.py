@@ -17,6 +17,7 @@ class TrekPackageAdmin(admin.ModelAdmin):
         "title",
         "destination",
         "price",
+        "guide_price",
         "difficulty",
         "featured",
         "available",

@@ -1,26 +1,33 @@
 from django.contrib import admin
 
 from trekking_and_tour_management_system.guides.models import Guide
-from trekking_and_tour_management_system.guides.services.guide_services import create_guide_by_admin
-
 
 
 @admin.register(Guide)
-class GuideProfileAdmin(admin.ModelAdmin):
+class GuideAdmin(admin.ModelAdmin):
+
     list_display = [
+        "id",
+        "full_name",
         "user",
         "phone_number",
-        "experience",
         "languages",
         "is_verified",
         "created_at",
     ]
 
     search_fields = [
+        "full_name",
         "user__email",
         "phone_number",
     ]
 
     list_filter = [
         "is_verified",
-    ]   
+        "created_at",
+    ]
+
+    readonly_fields = [
+        "created_at",
+        "updated_at",
+    ]

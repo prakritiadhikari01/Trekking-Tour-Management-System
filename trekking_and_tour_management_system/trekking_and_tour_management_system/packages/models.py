@@ -45,7 +45,11 @@ class TrekPackage(models.Model):
         max_digits=10,
         decimal_places=2
     )
-
+    guide_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
     difficulty = models.CharField(
         max_length=20,
         choices=DIFFICULTY_CHOICES,

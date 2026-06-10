@@ -46,19 +46,20 @@ Login and accept/reject the assignment.
         recipient_list=[guide.user.email],
     )
 
-def send_admin_notification_email(booking):
-    print("Sending admin notification email about guide response...")
+
+
+def send_guide_account_ready_email(user, reset_link):
+    print(f"Sending guide account ready email to {user.email}...")
+    print(f"Reset link: {reset_link}")
     send_mail(
-        subject="Guide Responded to Assignment",
-
-        message=f"""
-Hello Admin,
-The guide {booking.assigned_guide.full_name} has responded to the assignment for booking ID {booking.id}.
-Current Guide Status: {booking.guide_status}
-Current Booking Status: {booking.booking_status}
-Please review the booking and take necessary actions.
+        subject="Your Guide Account is Ready",
+        message=f"""Hi {user.name},
+Your guide account has been created.
+Set your password using this link:
+{reset_link}
+After setting password, you can log in using your email.
 """,
-
         from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[settings.EMAIL_HOST_USER],
+        recipient_list=[user.email],
+        fail_silently=False,
     )
