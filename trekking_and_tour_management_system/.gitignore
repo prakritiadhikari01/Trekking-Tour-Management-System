@@ -140,8 +140,3 @@ tags
 
 trekking_and_tour_management_system/media/
 
-############################################
-# CUSTOM: IGNORE DJANGO MIGRATIONS
-############################################
-**/migrations/*
-!**/migrations/__init__.py
