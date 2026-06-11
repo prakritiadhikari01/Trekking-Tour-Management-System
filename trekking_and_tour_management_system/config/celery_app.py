@@ -1,7 +1,14 @@
 import os
+import sys
+from pathlib import Path
 
 from celery import Celery
 from celery.signals import setup_logging
+
+# This allows easy placement of apps within the interior
+# trekking_and_tour_management_system directory.
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(str(BASE_DIR / "trekking_and_tour_management_system"))
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")

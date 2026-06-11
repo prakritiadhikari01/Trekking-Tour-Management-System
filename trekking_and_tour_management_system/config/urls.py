@@ -39,21 +39,21 @@ urlpatterns += [
     # DRF auth token
     path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),
     path( "api/docs/",SpectacularSwaggerView.as_view(url_name="api-schema"), name="api-docs"),
+    
     path(
-        "bookings/",
-        include("trekking_and_tour_management_system.bookings.api.urls"),
-        name="bookings",
+        "api/v1/bookings/",
+        include("trekking_and_tour_management_system.bookings.urls"),
     ),
     path(
-        "api/bookings/",
-        include("trekking_and_tour_management_system.bookings.api.urls"),
-    ),
-    path(
-        "api/payments/",
-        include("trekking_and_tour_management_system.payments.api.urls"),
-    ),
-    path("api/", include("trekking_and_tour_management_system.reviews.api.urls")),
-    path("api/reports/", include("trekking_and_tour_management_system.reports.api.urls")),
+        "api/v1/payments/",
+        include("trekking_and_tour_management_system.payments.urls"),
+        ),
+    path("api/v1/reviews/", 
+         include("trekking_and_tour_management_system.reviews.urls")
+         ),
+    path("api/v1/reports/", 
+         include("trekking_and_tour_management_system.reports.urls")
+         ),
  ]
 
 if settings.DEBUG:
