@@ -10,18 +10,14 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('reviews', '0001_initial'),
+        ('bookings', '0002_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='review',
+            model_name='booking',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reviews', to=settings.AUTH_USER_MODEL),
-        ),
-        migrations.AlterUniqueTogether(
-            name='review',
-            unique_together={('user', 'package')},
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='bookings', to=settings.AUTH_USER_MODEL),
         ),
     ]

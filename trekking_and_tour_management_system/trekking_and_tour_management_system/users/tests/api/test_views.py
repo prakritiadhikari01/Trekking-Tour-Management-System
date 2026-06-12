@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 from rest_framework.test import APIRequestFactory
 
-from trekking_and_tour_management_system.users.api.views import UserViewSet
+from trekking_and_tour_management_system.users.api.v1.views import UserViewSet
 
 if TYPE_CHECKING:
     from trekking_and_tour_management_system.users.models import User

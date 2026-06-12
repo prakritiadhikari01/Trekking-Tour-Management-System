@@ -68,7 +68,7 @@ def send_guide_creation_email_task(user_id):
 
     reset_link = (
         f"{settings.APP_BASE_URL}"
-        f"/api/auth/password-reset-confirm/"
+        f"/api/v1/users/reset-password/"
         f"{uid}/{token}/"
     )
 

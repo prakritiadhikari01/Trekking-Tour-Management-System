@@ -20,11 +20,8 @@ urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
     # Your stuff: custom urls includes go here
-    path("api/auth/", include("trekking_and_tour_management_system.users.api.urls")),
-    path("api/guides/",include("trekking_and_tour_management_system.guides.api.urls"), name="guides-api"),
-    path("api/guide-applications/",include("trekking_and_tour_management_system.guide_applications.api.urls"), name="guide-applications-api"),
-    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/v1/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/v1/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
 ]
@@ -39,20 +36,26 @@ urlpatterns += [
     # DRF auth token
     path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),
     path( "api/docs/",SpectacularSwaggerView.as_view(url_name="api-schema"), name="api-docs"),
+    path("api/v1/users/",
+        include("trekking_and_tour_management_system.users.urls"),
+        name="users-api",),
+    path("api/v1/packages/",
+        include("trekking_and_tour_management_system.packages.urls")),
+    path("api/v1/guides/",
+        include("trekking_and_tour_management_system.guides.urls"),
+        name="guides-api"),
+    path("api/v1/guide-applications/",
+        include("trekking_and_tour_management_system.guide_applications.urls"),
+        name="guide-applications-api"),
     path(
-        "bookings/",
-        include("trekking_and_tour_management_system.bookings.api.urls"),
-        name="bookings",
+        "api/v1/bookings/",
+        include("trekking_and_tour_management_system.bookings.urls"),
     ),
     path(
-        "api/bookings/",
-        include("trekking_and_tour_management_system.bookings.api.urls"),
+        "api/v1/payments/",
+        include("trekking_and_tour_management_system.payments.urls"),
     ),
-    path(
-        "api/payments/",
-        include("trekking_and_tour_management_system.payments.api.urls"),
-    ),
-    path("api/", include("trekking_and_tour_management_system.reviews.api.urls")),
+    path("api/v1/reviews/", include("trekking_and_tour_management_system.reviews.urls")),
  ]
 
 if settings.DEBUG:
