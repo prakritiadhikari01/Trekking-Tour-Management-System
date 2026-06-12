@@ -1,11 +1,28 @@
-# from django.urls import include, path
-# from . import views
+from django.urls import path
 
-# app_name = "payments"
+from trekking_and_tour_management_system.payments.api.v1.views import (
+    DownloadInvoiceByPidxView,
+    DownloadInvoiceByTokenView,
+    InvoiceView,
+    KhaltiInitiateView,
+    KhaltiVerifyView,
+)
 
-# urlpatterns = [
-#     path("khalti/<int:booking_id>/", views.khalti_payment, name="khalti_payment"),
-#     path("success/", views.payment_success, name="payment_success"),
-#     path("failed/", views.payment_failed, name="payment_failed"),
-#     path("payment/success/", views.payment_success, name="payment-success"),
-# ]
+
+
+urlpatterns = [
+    path("initiate/", KhaltiInitiateView.as_view()),
+    path("verify/", KhaltiVerifyView.as_view()),
+    path("invoice/", InvoiceView.as_view(), name="invoice"),
+    path(
+        "invoices/<str:token>/download/",
+        DownloadInvoiceByTokenView.as_view(),
+        name="download-invoice",
+    ),
+    path(
+        "download-invoice/<str:pidx>/",
+        DownloadInvoiceByPidxView.as_view(),
+        name="download-invoice-legacy",
+    ),
+]
+    

@@ -1,20 +1,8 @@
-from django.urls import path
+from rest_framework.routers import DefaultRouter
+from trekking_and_tour_management_system.packages.api.v1.views import TrekPackageViewSet
 
-from . import views
+router = DefaultRouter()
+router.include_format_suffixes = False
+router.register(r"", TrekPackageViewSet, basename="packages")
 
-app_name = "packages"
-
-urlpatterns = [
-
-    path(
-        "",
-        views.package_list,
-        name="package_list",
-    ),
-
-    path(
-        "<slug:slug>/",
-        views.package_detail,
-        name="package_detail",
-    ),
-]
+urlpatterns = router.urls

@@ -4,7 +4,7 @@ from trekking_and_tour_management_system.guides.api.admin_views import AssignGui
 
 
 
-from .views import (
+from .api.v1.views import (
     BookingListCreateAPIView,
     BookingDetailAPIView,
     BookingHistoryView,

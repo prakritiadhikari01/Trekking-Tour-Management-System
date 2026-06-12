@@ -1,38 +1,29 @@
 from django.urls import path
-
-from trekking_and_tour_management_system.users.api.views.auth_views import LoginAPIView, PasswordResetConfirmView, RegisterAPIView
-
-from .views import user_detail_view
-from .views import user_redirect_view
-from .views import user_update_view
-
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
+from trekking_and_tour_management_system.users.api.v1.views.auth_views import (
+    RegisterAPIView,
+    LoginAPIView,
+    ChangePasswordAPIView,
+    LogoutAPIView,
+    PasswordResetConfirmView,
 )
+from trekking_and_tour_management_system.users.api.v1.views.user_views import UserViewSet
 
 app_name = "users"
 
 urlpatterns = [
-    path("~redirect/", view=user_redirect_view, name="redirect"),
-    path("~update/", view=user_update_view, name="update"),
-    path("<int:pk>/", view=user_detail_view, name="detail"),
     
+    path("register/", RegisterAPIView.as_view(), name="register"),
+    path("login/", LoginAPIView.as_view(), name="login"),
+    path("change-password/", ChangePasswordAPIView.as_view(), name="change-password"),
+    path("logout/", LogoutAPIView.as_view(), name="logout"),
     path(
-        "register/",
-        RegisterAPIView.as_view(),
-        name="register",
+        "reset-password/<uidb64>/<token>/",
+        PasswordResetConfirmView.as_view(),
+        name="password-reset-confirm",
     ),
 
-    path(
-        "token/",
-        TokenObtainPairView.as_view(),
-        name="token_obtain_pair",
-    ),
+    # profile endpoint (important for /me)
+    path("me/", UserViewSet.as_view({"get": "me"}), name="me"),
 
-    path(
-        "token/refresh/",
-        TokenRefreshView.as_view(),
-        name="token_refresh",
-    ),
+    
 ]

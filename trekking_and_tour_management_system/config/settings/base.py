@@ -107,6 +107,7 @@ THIRD_PARTY_APPS = [
     "rest_framework_simplejwt",
     "corsheaders",
     "drf_spectacular",
+    "rest_framework_simplejwt.token_blacklist",
     
 ]
 
@@ -118,6 +119,7 @@ LOCAL_APPS = [
     "trekking_and_tour_management_system.packages",
     "trekking_and_tour_management_system.guide_applications",
     "trekking_and_tour_management_system.guides",
+    "trekking_and_tour_management_system.core",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -428,6 +430,11 @@ JAZZMIN_SETTINGS = {
     "site_title": "Trekking Admin",
     "site_header": "Trekking & Tour System",
     "site_brand": "Tour Manager",
+}
+
+SIMPLE_JWT = {
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
 }
 
 env_path = BASE_DIR / ".envs" / ".local" / ".django"
