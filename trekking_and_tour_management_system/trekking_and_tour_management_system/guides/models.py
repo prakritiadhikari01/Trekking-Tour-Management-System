@@ -2,8 +2,11 @@
 from django.db import models
 from django.conf import settings
 
+from core.models import TimeStampedModel
+from trekking_and_tour_management_system.core.validators import validate_phone_number
 
-class Guide(models.Model):
+
+class Guide(TimeStampedModel):
 
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -16,9 +19,11 @@ class Guide(models.Model):
     )
 
     phone_number = models.CharField(
-        max_length=20
+        max_length=20,
+        validators=[
+            validate_phone_number
+        ]
     )
-
     experience = models.TextField()
 
     languages = models.CharField(
@@ -27,14 +32,6 @@ class Guide(models.Model):
 
     is_verified = models.BooleanField(
         default=False
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
-
-    updated_at = models.DateTimeField(
-        auto_now=True
     )
 
     class Meta:
