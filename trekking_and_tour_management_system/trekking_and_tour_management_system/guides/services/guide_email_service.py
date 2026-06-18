@@ -3,13 +3,15 @@
 from django.core.mail import send_mail
 from django.conf import settings
 
+from trekking_and_tour_management_system.core.services.email_service import EmailService
+
 
 def send_guide_assignment_email(booking):
     print("Sending guide assignment email...")
     guide = booking.assigned_guide
     info = booking.package.info
 
-    send_mail(
+    EmailService.send_plain_maill(
         subject="New Trek Assignment",
 
         message=f"""

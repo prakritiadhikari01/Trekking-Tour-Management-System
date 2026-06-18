@@ -1,31 +1,35 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
+from core.models import (
+    TimeStampedModel,
+    SlugModel,
+)
 
-from trekking_and_tour_management_system.core.models import BaseModel
 from trekking_and_tour_management_system.core.choices import DifficultyLevel
 
 
-class Category(BaseModel):
+class Category(SlugModel):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(unique=True, blank=True)
 
     class Meta:
         verbose_name_plural = "Categories"
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
+    def get_slug_source(self):
+        return self.name
 
     def __str__(self):
         return self.name
     
-class TrekPackage(BaseModel):
+    
+    
+
+
+
+class TrekPackage(TimeStampedModel, SlugModel):
 
     title = models.CharField(max_length=255)
-    
-    slug = models.SlugField(unique=True, blank=True)
 
     category = models.ForeignKey(Category,on_delete=models.CASCADE,related_name="packages")
 
@@ -52,6 +56,9 @@ class TrekPackage(BaseModel):
         if not self.slug:
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
+        
+    def get_slug_source(self):
+        return self.title
 
     def get_absolute_url(self):
         return reverse(
@@ -62,7 +69,7 @@ class TrekPackage(BaseModel):
     def __str__(self):
         return self.title
     
-class TrekPackageInfo(BaseModel):
+class TrekPackageInfo(TimeStampedModel):
     package = models.OneToOneField("packages.TrekPackage",on_delete=models.CASCADE,related_name="info")
 
     meeting_point = models.TextField()

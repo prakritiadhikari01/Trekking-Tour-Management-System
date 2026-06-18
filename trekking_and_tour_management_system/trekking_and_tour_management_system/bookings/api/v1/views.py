@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from trekking_and_tour_management_system.bookings.utils import calculate_refund_percentage
 from trekking_and_tour_management_system.payments.models import Refund
+from trekking_and_tour_management_system.core.pagination import DefaultPagination
 from .serializers import BookingHistorySerializer, BookingSerializer, BookingCancelSerializer
 from django.db.models import Q
 from datetime import timedelta
@@ -65,7 +66,8 @@ class BookingDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class BookingHistoryView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = BookingHistorySerializer
-
+    pagination_class = DefaultPagination
+    
     def get_queryset(self):
 
         qs = Booking.objects.select_related("package").filter(

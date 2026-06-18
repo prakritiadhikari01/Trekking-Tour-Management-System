@@ -1,9 +1,9 @@
 from django.db import models
 
-from trekking_and_tour_management_system.core.models import BaseModel
 from trekking_and_tour_management_system.core.choices import GuideApplicationStatus
+from trekking_and_tour_management_system.core.models.base import TimeStampedModel
 
-class GuideApplication(BaseModel):
+class GuideApplication(TimeStampedModel):
     
     full_name = models.CharField(max_length=255)
 
