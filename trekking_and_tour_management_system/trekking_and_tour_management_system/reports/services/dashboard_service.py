@@ -21,7 +21,7 @@ class DashboardService:
             "total_customers": get_total_customers(),
             "active_customers": get_active_customers(),
             "total_bookings": get_total_bookings(),
-            "total_revenue": revenue_data["total"] or 0,
+            "total_revenue": revenue_data.get("total", 0) ,
             "top_customers": list(get_booking_by_user())[:5],
             "top_packages": list(get_top_packages())[:5],
         }

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from trekking_and_tour_management_system.payments.api.views import (
+from trekking_and_tour_management_system.payments.api.v1.views import (
     DownloadInvoiceByPidxView,
     DownloadInvoiceByTokenView,
     InvoiceView,

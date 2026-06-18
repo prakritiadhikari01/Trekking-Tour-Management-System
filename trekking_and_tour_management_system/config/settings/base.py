@@ -107,6 +107,7 @@ THIRD_PARTY_APPS = [
     "rest_framework_simplejwt",
     "corsheaders",
     "drf_spectacular",
+    "rest_framework_simplejwt.token_blacklist",
     
 ]
 
@@ -119,6 +120,7 @@ LOCAL_APPS = [
     "trekking_and_tour_management_system.guide_applications",
     "trekking_and_tour_management_system.guides",
     "trekking_and_tour_management_system.reports",
+    "trekking_and_tour_management_system.core",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -366,7 +368,7 @@ CELERY_TASK_SEND_SENT_EVENT = True
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html#worker-hijack-root-logger
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
-CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_ALWAYS_EAGER = False
 
 
 CELERY_BEAT_SCHEDULE = {
@@ -430,6 +432,11 @@ JAZZMIN_SETTINGS = {
     "site_title": "Trekking Admin",
     "site_header": "Trekking & Tour System",
     "site_brand": "Tour Manager",
+}
+
+SIMPLE_JWT = {
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
 }
 
 env_path = BASE_DIR / ".envs" / ".local" / ".django"

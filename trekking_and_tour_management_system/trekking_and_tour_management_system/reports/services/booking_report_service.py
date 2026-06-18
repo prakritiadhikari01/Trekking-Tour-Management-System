@@ -1,38 +1,72 @@
-from reports.selectors.booking_selector import (
+# trekking_and_tour_management_system/reports/services/booking_report_service.py
+
+from ..selectors.booking_selector import (
     get_bookings,
-    get_revenue
+    get_revenue,
 )
 
 
-def generate_booking_report(start_date=None, end_date=None, status=None):
-    bookings = get_bookings(start_date, end_date, status)
+def generate_booking_report(
+    start_date=None,
+    end_date=None,
+    status=None,
+):
+    """
+    Generate booking statistics and booking list.
+    """
 
-    total = bookings.count()
-    confirmed = bookings.filter(booking_status="CONFIRMED").count()
-    pending = bookings.filter(booking_status="PENDING").count()
-    cancelled = bookings.filter(booking_status="CANCELLED").count()
+    bookings = get_bookings(
+        start_date=start_date,
+        end_date=end_date,
+        status=status,
+    )
 
     return {
-        "total_bookings": total,
-        "confirmed": confirmed,
-        "pending": pending,
-        "cancelled": cancelled,
+        "total_bookings": bookings.count(),
+        "confirmed": bookings.filter(
+            booking_status="CONFIRMED"
+        ).count(),
+        "pending": bookings.filter(
+            booking_status="PENDING"
+        ).count(),
+        "cancelled": bookings.filter(
+            booking_status="CANCELLED"
+        ).count(),
         "data": [
             {
-                "id": b.id,
-                "user": b.user.username,
-                "package": str(b.package),
-                "status": b.booking_status,
-                "price": b.total_price,
-                "date": b.created_at
+                "id": booking.id,
+                "user": getattr(
+                    booking.user,
+                    "username",
+                    str(booking.user),
+                ),
+                "package": str(booking.package),
+                "status": booking.booking_status,
+                "price": booking.total_price,
+                "date": booking.created_at,
             }
-            for b in bookings
-        ]
+            for booking in bookings
+        ],
     }
 
-def generate_revenue_report(start_date=None, end_date=None):
-    revenue_data = get_revenue(start_date, end_date)
+
+def generate_revenue_report(
+    start_date=None,
+    end_date=None,
+):
+    """
+    Generate revenue report.
+    """
+
+    revenue_data = get_revenue(
+        start_date=start_date,
+        end_date=end_date,
+    )
 
     return {
-        "total_revenue": revenue_data["total_revenue"] or 0
+        "total_revenue": revenue_data.get(
+            "total_revenue",
+            0,
+        )
+        or 0
     }

@@ -152,6 +152,5 @@ trekking_and_tour_management_system/media/
 
 .pytest_cache/
 
-# Django database
-db.sqlite3
-*.sqlite3
+
+

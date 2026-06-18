@@ -12,7 +12,7 @@ from trekking_and_tour_management_system.bookings.models import Booking
 from trekking_and_tour_management_system.payments.models import Invoice, Payment, Refund
 from trekking_and_tour_management_system.payments.services.invoice_service import generate_or_update_invoice
 from trekking_and_tour_management_system.payments.services.khalti_service import ensure_khalti_payment_link
-from trekking_and_tour_management_system.guide_applications.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser
 #from trekking_and_tour_management_system.payments.services.refund_service import complete_refund
 
 class KhaltiInitiateView(APIView):

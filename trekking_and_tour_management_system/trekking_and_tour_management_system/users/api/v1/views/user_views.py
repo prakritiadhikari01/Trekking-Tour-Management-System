@@ -9,11 +9,9 @@ from rest_framework.permissions import IsAuthenticated
 
 
 from rest_framework import permissions
+from trekking_and_tour_management_system.users.api.v1.serializers import UserSerializer,ContactSupportSerializer
 from trekking_and_tour_management_system.users.models import User
-from trekking_and_tour_management_system.users.api.serializers import (
-    ContactSupportSerializer,
-    UserSerializer,
-)
+
 
 class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
     serializer_class = UserSerializer

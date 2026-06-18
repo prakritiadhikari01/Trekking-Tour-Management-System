@@ -1,5 +1,6 @@
 from django.urls import path
 from trekking_and_tour_management_system.reports.api.views import (
+    BookingExcelExportView,
     CustomerReportAPIView,
     PackageReportAPIView,
     RevenueExportPDFView,
@@ -17,5 +18,10 @@ urlpatterns = [
     path("bookings/", BookingReportAPIView.as_view()),
     path("revenue/export-pdf/", RevenueExportPDFView.as_view(), name="revenue-export-pdf"),
     path("download/", download_report, name="download_report"),
+    path(
+    "export/excel/",
+    BookingExcelExportView.as_view(),
+    name="booking-excel-export",
+),
     
 ]

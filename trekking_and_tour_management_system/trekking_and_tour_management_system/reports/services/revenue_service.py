@@ -7,6 +7,6 @@ class RevenueReportService:
         revenue_data = get_revenue()
 
         return {
-            "total_revenue": revenue_data["total"] or 0,
+            "total_revenue": revenue_data.get("total", 0),
             "total_bookings": get_total_bookings(),
         }

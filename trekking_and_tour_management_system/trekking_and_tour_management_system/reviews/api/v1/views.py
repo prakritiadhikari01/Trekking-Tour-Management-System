@@ -1,8 +1,8 @@
 from rest_framework.exceptions import ValidationError
 from rest_framework import viewsets, permissions
-from ..models import Review
+from ...models import Review
 from .serializers import ReviewSerializer
-from trekking_and_tour_management_system.reviews.api.permissions import IsReviewOwner
+from trekking_and_tour_management_system.reviews.api.v1.permissions import IsReviewOwner
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
