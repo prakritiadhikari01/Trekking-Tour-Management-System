@@ -4,6 +4,8 @@ from django.utils import timezone
 from trekking_and_tour_management_system.bookings.models import Booking
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
+
+from trekking_and_tour_management_system.core.pagination import DefaultPagination
 from .serializers import BookingHistorySerializer, BookingSerializer, BookingCancelSerializer
 from django.db.models import Q
 from datetime import timedelta
@@ -58,7 +60,8 @@ class BookingDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class BookingHistoryView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = BookingHistorySerializer
-
+    pagination_class = DefaultPagination
+    
     def get_queryset(self):
 
         qs = Booking.objects.select_related("package").filter(

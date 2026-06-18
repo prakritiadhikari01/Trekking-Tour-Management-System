@@ -1,16 +1,14 @@
 # bookings/models.py
 from django.conf import settings
 from django.db import models
+from core.models import TimeStampedModel
+from core.constants.choices import (
+    BookingStatus,
+    GuideAssignmentStatus,
+)
+from trekking_and_tour_management_system.core.validators import validate_phone_number
 
-
-class Booking(models.Model):
-
-    BOOKING_STATUS = (
-        ("PENDING", "Pending"),
-        ("CONFIRMED", "Confirmed"),
-        ("CANCELLED", "Cancelled"),
-        ("COMPLETED", "Completed"),
-    )
+class Booking(TimeStampedModel):
 
     package = models.ForeignKey(
         "packages.TrekPackage",
@@ -40,14 +38,8 @@ class Booking(models.Model):
     )
     guide_status = models.CharField(
         max_length=20,
-        choices=(
-            ("NOT_ASSIGNED", "Not Assigned"),
-            ("PENDING", "Pending"),
-            ("ACCEPTED", "Accepted"),
-            ("REJECTED", "Rejected"),
-            ("EXPIRED", "Expired"),
-        ),
-        default="NOT_ASSIGNED"
+        choices=GuideAssignmentStatus.choices,
+        default=GuideAssignmentStatus.NOT_ASSIGNED,
     )
     guide_assigned_at = models.DateTimeField(
         null=True,
@@ -67,7 +59,12 @@ class Booking(models.Model):
 
     email = models.EmailField()
 
-    phone_number = models.CharField(max_length=20)
+    phone_number = models.CharField(
+        max_length=20,
+        validators=[
+            validate_phone_number
+        ]
+    )
 
     number_of_people = models.PositiveIntegerField(default=1)
 
@@ -88,8 +85,8 @@ class Booking(models.Model):
 
     booking_status = models.CharField(
         max_length=20,
-        choices=BOOKING_STATUS,
-        default="PENDING"
+        choices=BookingStatus.choices,
+        default=BookingStatus.PENDING,
     )
 
     khalti_pidx = models.CharField(
@@ -97,10 +94,6 @@ class Booking(models.Model):
         blank=True,
         null=True
     )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    updated_at = models.DateTimeField(auto_now=True)
 
     cancellation_reason = models.TextField(null=True, blank=True)
 

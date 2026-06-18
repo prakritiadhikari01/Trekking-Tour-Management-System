@@ -1,8 +1,11 @@
 from django.db import models
 from django.conf import settings
 
+from trekking_and_tour_management_system.core.models.base import TimeStampedModel
+from trekking_and_tour_management_system.core.validators import validate_rating
 
-class Review(models.Model):
+
+class Review(TimeStampedModel):
     """
     Review model for Trek Packages
     """
@@ -21,13 +24,13 @@ class Review(models.Model):
         related_name="reviews"
     )
 
-    rating = models.PositiveSmallIntegerField()
+    rating = models.PositiveSmallIntegerField(
+        validators=[
+            validate_rating
+        ]
+    )
 
     comment = models.TextField()
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ("user", "package")  # one review per user per package

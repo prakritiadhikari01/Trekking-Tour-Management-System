@@ -2,13 +2,11 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.utils.crypto import get_random_string
+from core.constants.choices import PaymentStatus
+from core.models.base import TimeStampedModel
 
-class Payment(models.Model):
-    STATUS_CHOICES = (
-        ("PENDING", "Pending"),
-        ("COMPLETED", "Completed"),
-        ("FAILED", "Failed"),
-    )
+class Payment(TimeStampedModel):
+    
 
     booking = models.OneToOneField(
         "bookings.Booking",
@@ -25,7 +23,11 @@ class Payment(models.Model):
 
     transaction_id = models.CharField(max_length=255, null=True, blank=True)
 
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
+    status = models.CharField(
+        max_length=20,
+        choices=PaymentStatus.choices,
+        default=PaymentStatus.PENDING,
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -33,7 +35,7 @@ class Payment(models.Model):
         return f"{self.user} - {self.amount} - {self.status}"
 
 
-class Invoice(models.Model):
+class Invoice(TimeStampedModel):
     payment = models.OneToOneField(
         "payments.Payment",
         on_delete=models.CASCADE,
@@ -47,8 +49,6 @@ class Invoice(models.Model):
     invoice_id = models.CharField(max_length=32, unique=True)
     access_token = models.CharField(max_length=64, unique=True)
     file = models.FileField(upload_to="invoices/%Y/%m/")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     @staticmethod
     def build_invoice_id(payment_id: int) -> str:
@@ -79,7 +79,6 @@ class NotificationDispatch(models.Model):
         blank=True,
         related_name="notification_dispatches",
     )
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.unique_key

@@ -1,24 +1,28 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
+from core.models import (
+    TimeStampedModel,
+    SlugModel,
+)
 
-
-class Category(models.Model):
+class Category(SlugModel):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(unique=True, blank=True)
 
     class Meta:
         verbose_name_plural = "Categories"
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
+    def get_slug_source(self):
+        return self.name
 
     def __str__(self):
         return self.name
     
-class TrekPackage(models.Model):
+
+
+
+class TrekPackage(TimeStampedModel, SlugModel):
 
     DIFFICULTY_CHOICES = (
         ("easy", "Easy"),
@@ -27,7 +31,6 @@ class TrekPackage(models.Model):
     )
 
     title = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True, blank=True)
 
     category = models.ForeignKey(
         Category,
@@ -65,14 +68,8 @@ class TrekPackage(models.Model):
 
     available = models.BooleanField(default=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
-        super().save(*args, **kwargs)
+    def get_slug_source(self):
+        return self.title
 
     def get_absolute_url(self):
         return reverse(
