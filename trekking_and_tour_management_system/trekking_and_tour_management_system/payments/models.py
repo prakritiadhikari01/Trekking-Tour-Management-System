@@ -2,8 +2,8 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.utils.crypto import get_random_string
-from core.constants.choices import PaymentStatus, RefundStatus
 from core.models.base import TimeStampedModel
+from trekking_and_tour_management_system.core.constants import PaymentStatus, RefundStatus
 
 class Payment(TimeStampedModel):
     

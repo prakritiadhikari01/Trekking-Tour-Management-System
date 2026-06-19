@@ -1,6 +1,6 @@
 from django.db import models
 
-from trekking_and_tour_management_system.core.choices import GuideApplicationStatus
+from trekking_and_tour_management_system.core.constants import GuideApplicationStatus
 from trekking_and_tour_management_system.core.models.base import TimeStampedModel
 
 class GuideApplication(TimeStampedModel):

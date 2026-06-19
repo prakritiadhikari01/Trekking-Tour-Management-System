@@ -2,13 +2,10 @@
 from django.conf import settings
 from django.db import models
 from core.models import TimeStampedModel
-from core.constants.choices import (
-    BookingStatus,
-    GuideAssignmentStatus,
-)
+
+from trekking_and_tour_management_system.core.constants import BookingStatus, GuideStatus
 from trekking_and_tour_management_system.core.validators import validate_phone_number
 
-from trekking_and_tour_management_system.core.choices import BookingStatus, GuideStatus
 
 
     
@@ -40,8 +37,8 @@ class Booking(TimeStampedModel):
     )
     guide_status = models.CharField(
         max_length=20,
-        choices=GuideAssignmentStatus.choices,
-        default=GuideAssignmentStatus.NOT_ASSIGNED,
+        choices=GuideStatus.choices,
+        default=GuideStatus.NOT_ASSIGNED,
     )
     guide_assigned_at = models.DateTimeField(
         null=True,

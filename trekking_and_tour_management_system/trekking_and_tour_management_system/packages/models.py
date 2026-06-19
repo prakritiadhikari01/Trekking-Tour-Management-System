@@ -5,8 +5,8 @@ from core.models import (
     TimeStampedModel,
     SlugModel,
 )
+from trekking_and_tour_management_system.core.constants import DifficultyLevel
 
-from trekking_and_tour_management_system.core.choices import DifficultyLevel
 
 
 class Category(SlugModel):
