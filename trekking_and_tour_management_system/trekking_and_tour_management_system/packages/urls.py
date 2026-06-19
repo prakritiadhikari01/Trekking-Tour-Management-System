@@ -3,6 +3,6 @@ from trekking_and_tour_management_system.packages.api.v1.views import TrekPackag
 
 router = DefaultRouter()
 router.include_format_suffixes = False
-router.register(r"", TrekPackageViewSet, basename="packages")
+router.register(r"packages", TrekPackageViewSet, basename="packages")
 
 urlpatterns = router.urls

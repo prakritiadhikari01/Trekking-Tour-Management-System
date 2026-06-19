@@ -1,16 +1,17 @@
-#trekking_and_tour_management_system/core/utils/slug.py
 from django.utils.text import slugify
 
 
-def generate_unique_slug(model_class, value):
-    base_slug = slugify(value)
+def generate_unique_slug(model, value, slug_field="slug"):
+    """
+    Production-safe unique slug generator.
+    """
+
+    base_slug = slugify(value)[:240]
     slug = base_slug
 
     counter = 1
 
-    while model_class.objects.filter(
-        slug=slug
-    ).exists():
+    while model.objects.filter(**{slug_field: slug}).exists():
         slug = f"{base_slug}-{counter}"
         counter += 1
 

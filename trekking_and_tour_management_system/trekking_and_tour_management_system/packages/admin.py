@@ -1,3 +1,4 @@
+#trekking_and_tour_management_system/packages/admin.py
 from django.contrib import admin
 
 from .models import Category, TrekPackageInfo
@@ -15,6 +16,7 @@ class TrekPackageAdmin(admin.ModelAdmin):
 
     list_display = [
         "title",
+        "category",
         "destination",
         "price",
         "guide_price",
@@ -38,6 +40,7 @@ class TrekPackageAdmin(admin.ModelAdmin):
     prepopulated_fields = {
         "slug": ("title",)
     }
+    
 
 @admin.register(TrekPackageInfo)
 class TrekPackageInfoAdmin(admin.ModelAdmin):
