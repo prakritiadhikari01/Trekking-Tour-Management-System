@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from trekking_and_tour_management_system.bookings.models import Booking
 from trekking_and_tour_management_system.guides.services.guide_email_service import send_guide_assignment_email
 from trekking_and_tour_management_system.payments.models import Payment
-from trekking_and_tour_management_system.payments.tasks import (
+from trekking_and_tour_management_system.core.tasks import (
     send_booking_cancelled_email_task,
     send_booking_created_email_task,
 )
@@ -21,6 +21,7 @@ def cache_previous_booking_status(sender, instance: Booking, **kwargs):
 
 @receiver(post_save, sender=Booking)
 def booking_events(sender, instance: Booking, created: bool, **kwargs):
+    
     if created:
         payment = Payment.objects.filter(booking=instance).first()
         if payment is None:

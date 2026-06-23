@@ -45,6 +45,8 @@ class Booking(BaseModel):
 
     khalti_pidx = models.CharField(  max_length=255, blank=True, null=True)
 
+    cancelled_at = models.DateTimeField(null=True,blank=True,)
+
     cancellation_reason = models.TextField(null=True, blank=True)
 
 

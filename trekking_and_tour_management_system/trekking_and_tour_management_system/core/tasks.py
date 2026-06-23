@@ -5,13 +5,13 @@ from trekking_and_tour_management_system.payments.models import (
     NotificationDispatch,
     Payment,
 )
-from trekking_and_tour_management_system.payments.services.email_service import (
+from trekking_and_tour_management_system.core.services.email_services import (
     send_event_emails,
 )
-from trekking_and_tour_management_system.payments.services.invoice_service import (
+from trekking_and_tour_management_system.core.services.invoice_service import (
     generate_or_update_invoice,
 )
-from trekking_and_tour_management_system.payments.services.khalti_service import (
+from trekking_and_tour_management_system.core.services.khalti_service import (
     ensure_khalti_payment_link,
 )
 

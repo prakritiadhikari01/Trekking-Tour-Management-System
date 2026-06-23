@@ -5,15 +5,16 @@ from django.db import transaction
 from django.http import HttpResponse
 
 from rest_framework.permissions import IsAuthenticated
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from trekking_and_tour_management_system.bookings.models import Booking
 from trekking_and_tour_management_system.payments.models import Invoice, Payment, Refund
-from trekking_and_tour_management_system.payments.services.invoice_service import generate_or_update_invoice
-from trekking_and_tour_management_system.payments.services.khalti_service import ensure_khalti_payment_link
+from trekking_and_tour_management_system.core.services.invoice_service import generate_or_update_invoice
+from trekking_and_tour_management_system.core.services.khalti_service import ensure_khalti_payment_link
 from rest_framework.permissions import IsAdminUser
-#from trekking_and_tour_management_system.payments.services.refund_service import complete_refund
+#from trekking_and_tour_management_system.core.services.refund_service import complete_refund
 
 class KhaltiInitiateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -196,7 +197,7 @@ class InvoiceView(APIView):
             "transaction_id": payment.transaction_id,
             "khalti_pidx": payment.pidx,
             "created_at": payment.created_at,
-            "invoice_url": f"{base_url}/api/payments/invoices/{invoice.access_token}/download/",
+            "invoice_url": f"{base_url}/api/v1/payments/invoices/{invoice.access_token}/download/",
         }
 
         return Response(invoice_data)

@@ -22,7 +22,7 @@ def export_bookings_excel(report_data):
     for booking in report_data["data"]:
         sheet.append([
             booking["id"],
-            booking["user"],
+            booking.get("user", ""),
             booking["package"],
             booking["status"],
             booking["price"],

@@ -8,6 +8,7 @@ import warnings
 import environ
 from dotenv import load_dotenv
 from celery.schedules import crontab
+import redis
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # trekking_and_tour_management_system/
@@ -24,7 +25,7 @@ warnings.filterwarnings(
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=True)
 if READ_DOT_ENV_FILE:
     # OS environment variables take precedence over variables from .env
-    env.read_env(str(BASE_DIR / ".env"))
+    env.read_env(BASE_DIR / ".envs" / ".local" / ".django")
 
 # GENERAL
 # ------------------------------------------------------------------------------
@@ -320,7 +321,7 @@ LOGGING = {
     "root": {"level": "INFO", "handlers": ["console"]},
 }
 
-REDIS_URL = env("REDIS_URL", default="redis://localhost:6379/0")
+REDIS_URL = env("REDIS_URL", default="redis://127.0.0.1:6379/0")
 REDIS_SSL = REDIS_URL.startswith("rediss://")
 
 # Celery
@@ -439,9 +440,9 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,
 }
 
-env_path = BASE_DIR / ".envs" / ".local" / ".django"
+# env_path = BASE_DIR / ".envs" / ".local" / ".django"
 
-load_dotenv(dotenv_path=env_path, override=True)
+# load_dotenv(dotenv_path=env_path, override=True)
 
 KHALTI_SECRET_KEY = os.getenv("KHALTI_SECRET_KEY")
 KHALTI_INITIATE_URL = os.getenv("KHALTI_INITIATE_URL")

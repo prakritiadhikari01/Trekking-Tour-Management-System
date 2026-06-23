@@ -35,11 +35,8 @@ def generate_booking_report(
         "data": [
             {
                 "id": booking.id,
-                "user": getattr(
-                    booking.user,
-                    "username",
-                    str(booking.user),
-                ),
+                #"user": getattr(booking.user, "username", str(booking.user)),
+                "user": booking.email,
                 "package": str(booking.package),
                 "status": booking.booking_status,
                 "price": booking.total_price,

@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives, send_mail
+from django.core.mail import EmailMultiAlternatives, get_connection, send_mail
 from django.template.loader import render_to_string
 
 
@@ -24,17 +24,22 @@ def send_html_email(
 ) -> None:
     if not recipients:
         return
+
     html_content = render_to_string(template_name, context)
     text_content = render_to_string("emails/base.txt", context)
+
+    connection = get_connection(fail_silently=False)
+
     email = EmailMultiAlternatives(
         subject=subject,
         body=text_content,
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=recipients,
+        connection=connection,   # 🔥 IMPORTANT FIX
     )
+
     email.attach_alternative(html_content, "text/html")
     email.send()
-
 
 def send_event_emails(
     *,

@@ -3,7 +3,7 @@ from django.dispatch import receiver
 
 from trekking_and_tour_management_system.bookings.models import Booking
 from trekking_and_tour_management_system.payments.models import Payment
-from trekking_and_tour_management_system.payments.tasks import (
+from trekking_and_tour_management_system.core.tasks import (
     generate_invoice_task,
     send_payment_failed_email_task,
     send_payment_success_email_task,
