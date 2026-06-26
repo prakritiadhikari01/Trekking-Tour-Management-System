@@ -1,7 +1,8 @@
 # bookings/services/customer_email_service.py
 
-from django.core.mail import send_mail
 from django.conf import settings
+
+from trekking_and_tour_management_system.core.services.email_service import EmailService
 
 
 def send_customer_accept_email(booking):
@@ -9,7 +10,7 @@ def send_customer_accept_email(booking):
     guide = booking.assigned_guide
     info = booking.package.info
 
-    send_mail(
+    EmailService.send_plain_mail(
         subject="Your Trek Has Been Confirmed",
 
         message=f"""

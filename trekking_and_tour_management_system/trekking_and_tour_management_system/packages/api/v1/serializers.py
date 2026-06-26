@@ -1,3 +1,4 @@
+#trekking_and_tour_management_system/packages/api/v1/serializers.py
 from rest_framework import serializers
 
 from rest_framework import serializers
@@ -39,4 +40,35 @@ class TrekPackageSerializer(serializers.ModelSerializer):
             "featured",
             "available",
             "created_at",
+        ]
+
+class TrekPackageReadSerializer(
+    serializers.ModelSerializer
+):
+
+    category = CategorySerializer()
+
+    class Meta:
+        model = TrekPackage
+        fields = "__all__"
+
+class TrekPackageWriteSerializer(
+    serializers.ModelSerializer
+):
+
+    class Meta:
+        model = TrekPackage
+
+        fields = [
+            "title",
+            "category",
+            "destination",
+            "duration",
+            "price",
+            "guide_price",
+            "difficulty",
+            "description",
+            "image",
+            "featured",
+            "available",
         ]

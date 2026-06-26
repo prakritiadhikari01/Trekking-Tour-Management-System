@@ -72,7 +72,7 @@ class GuideAssignedToursAPIView(APIView):
 class GuideRespondAssignmentAPIView(APIView):
     permission_classes = [IsAuthenticated, IsGuide]
 
-    def post(self, request, booking_id):
+    def patch(self, request, booking_id):
 
         action = request.data.get("action")
 

@@ -2,11 +2,10 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.utils.crypto import get_random_string
+from core.models.base import TimeStampedModel
+from trekking_and_tour_management_system.core.constants import PaymentStatus, RefundStatus
 
-from trekking_and_tour_management_system.core.models import BaseModel
-from trekking_and_tour_management_system.core.choices import PaymentStatus, RefundStatus
-
-class Payment(BaseModel):
+class Payment(TimeStampedModel):
     
     booking = models.OneToOneField("bookings.Booking",on_delete=models.CASCADE,related_name="payment")
 
@@ -27,8 +26,20 @@ class Payment(BaseModel):
         return f"{self.user} - {self.amount} - {self.status}"
 
 
-class Invoice(BaseModel):
-    payment = models.OneToOneField("payments.Payment",on_delete=models.CASCADE,related_name="invoice",)
+class Invoice(TimeStampedModel):
+    payment = models.OneToOneField(
+        "payments.Payment",
+        on_delete=models.CASCADE,
+        related_name="invoice",
+    )
+    booking = models.OneToOneField(
+        "bookings.Booking",
+        on_delete=models.CASCADE,
+        related_name="invoice",
+    )
+    invoice_id = models.CharField(max_length=32, unique=True)
+    access_token = models.CharField(max_length=64, unique=True)
+    file = models.FileField(upload_to="invoices/%Y/%m/")
 
     booking = models.OneToOneField("bookings.Booking",on_delete=models.CASCADE,related_name="invoice",)
 
@@ -53,17 +64,25 @@ class NotificationDispatch(models.Model):
     unique_key = models.CharField(max_length=128, unique=True)
 
     event_type = models.CharField(max_length=64)
-
-    booking = models.ForeignKey("bookings.Booking",on_delete=models.CASCADE,null=True,blank=True,related_name="notification_dispatches",)
-
-    payment = models.ForeignKey("payments.Payment",on_delete=models.CASCADE, null=True,blank=True,related_name="notification_dispatches",)
-    
-    created_at = models.DateTimeField(auto_now_add=True)
+    booking = models.ForeignKey(
+        "bookings.Booking",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="notification_dispatches",
+    )
+    payment = models.ForeignKey(
+        "payments.Payment",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="notification_dispatches",
+    )
 
     def __str__(self):
         return self.unique_key
 
-class Refund(BaseModel):
+class Refund(TimeStampedModel):
 
     booking = models.OneToOneField("bookings.Booking",on_delete=models.CASCADE,related_name="refund")
 
