@@ -1,67 +1,76 @@
-# bookings/services/guide_email_service.py
-
-from django.core.mail import send_mail
-from django.conf import settings
-
-from trekking_and_tour_management_system.core.services.email_service import EmailService
+from trekking_and_tour_management_system.core.services.email_services import (
+    send_plain_email,
+)
 
 
 def send_guide_assignment_email(booking):
     print("Sending guide assignment email...")
+
     guide = booking.assigned_guide
     info = booking.package.info
 
-    EmailService.send_plain_maill(
+    send_plain_email(
         subject="New Trek Assignment",
-
         message=f"""
 Hello {guide.full_name},
 
-You have been assigned a trek.
+You have been assigned a new trek.
 
-PACKAGE: {booking.package.title}
-DESTINATION: {booking.package.destination}
-DURATION: {booking.package.duration} days
+PACKAGE DETAILS
+---------------
+Package: {booking.package.title}
+Destination: {booking.package.destination}
+Duration: {booking.package.duration} days
 
-CUSTOMER:
+CUSTOMER DETAILS
+----------------
 Name: {booking.full_name}
 Email: {booking.email}
 Phone: {booking.phone_number}
 
-DATES:
-Start: {booking.trip_start_date}
-End: {booking.trip_end_date}
+TRIP DATES
+----------
+Start Date: {booking.trip_start_date}
+End Date: {booking.trip_end_date}
 
-MEETING POINT:
+MEETING POINT
+-------------
 {info.meeting_point if info else "Not set"}
 
-REQUIRED ITEMS:
+REQUIRED ITEMS
+--------------
 {info.required_items if info else "Not set"}
 
-EMERGENCY CONTACT:
+EMERGENCY CONTACT
+-----------------
 {info.emergency_contact if info else "Not set"}
 
-Login and accept/reject the assignment.
+Please log in and accept or reject this assignment.
+
+Thank you.
 """,
-
-        from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[guide.user.email],
+        recipients=[guide.user.email],
     )
-
 
 
 def send_guide_account_ready_email(user, reset_link):
     print(f"Sending guide account ready email to {user.email}...")
     print(f"Reset link: {reset_link}")
-    send_mail(
+
+    send_plain_email(
         subject="Your Guide Account is Ready",
-        message=f"""Hi {user.name},
-Your guide account has been created.
-Set your password using this link:
+        message=f"""
+Hi {user.name},
+
+Your guide account has been created successfully.
+
+Please set your password using the link below:
+
 {reset_link}
-After setting password, you can log in using your email.
+
+After setting your password, you can log in using your email address.
+
+Thank you.
 """,
-        from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[user.email],
-        fail_silently=False,
+        recipients=[user.email],
     )
